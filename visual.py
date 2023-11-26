@@ -345,6 +345,7 @@ class Ventana(tk.Tk):
         self.filas = filas
         self.columnas = columnas
         self.ancho_celda = ancho_celda
+        self.lion_image = Image.open("leon.png")  # Cargar la imagen como un atributo de la clase
         self.crear_cuadricula()
         self.mostrar_leon()
 
@@ -363,10 +364,14 @@ class Ventana(tk.Tk):
         self.canvas = canvas  # Guardar una referencia al canvas para su uso posterior
 
     def mostrar_leon(self):
-        lion_image = Image.open("leon.png")  
-        lion_image = lion_image.resize((self.ancho_celda, self.ancho_celda), PIL.Image.Resampling.LANCZOS)  # Ajustar el tamaño de la imagen si es necesario
-        lion_image = ImageTk.PhotoImage(lion_image)  # Convertir la imagen a un formato compatible con tkinter
+        lion_image = self.lion_image.resize((self.ancho_celda, self.ancho_celda), PIL.Image.Resampling.LANCZOS)
+        lion_image = ImageTk.PhotoImage(lion_image)
+        x_posicion = 5 * self.ancho_celda
+        y_posicion = 8 * self.ancho_celda
+        self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=lion_image)
 
+        # Mantén una referencia a la imagen para evitar que sea eliminada por el recolector de basura
+        self.lion_image = lion_image
         # Calcular la posición donde quieres colocar al león (por ejemplo, en la celda en la fila 2, columna 3)
         x_posicion = 5 * self.ancho_celda
         y_posicion = 8 * self.ancho_celda
