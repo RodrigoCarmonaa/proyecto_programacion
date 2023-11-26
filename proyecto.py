@@ -215,10 +215,9 @@ class Ventana(tk.Tk):
     def inicializar_ecosistema(self):
         # Aquí puedes crear instancias de Planta, Animal, SavanaAfricana, etc.
         # y agregarlos al ecosistema
-        planta = Planta("Planta1", (1, 1))
-        animal = Animal("Animal1", (2, 2))
+        planta = Planta("Planta1", "TipoPlanta", (1, 1), 1, 1, 1, 1, 1)
+        animal = Animal("Animal1", "TipoAnimal", (2, 2), 1, 1, 1, 1, 1, 1)
         self.ecosistema.organismos.extend([planta, animal])
-
     def crear_cuadricula(self):
         canvas = tk.Canvas(self, width=self.columnas * self.ancho_celda, height=self.filas * self.ancho_celda)
         canvas.pack()
@@ -236,7 +235,7 @@ class Ventana(tk.Tk):
         self.ecosistema.ambiente.agregar_evento_aleatorio(self.generar_evento_aleatorio)
 
         # Configuración de eventos cíclicos
-        self.after(1000, self.ejecutar_eventos_ciclicos)
+        self.after(1000, self.ejecutar_eventos_ciclicos) 
 
     def ejecutar_eventos_ciclicos(self):
         # Lógica para eventos cíclicos
