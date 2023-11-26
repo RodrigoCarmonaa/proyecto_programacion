@@ -1,4 +1,7 @@
-
+import pygame as py 
+import numpy  as np
+import rxpy   as rp
+import random as ra
 # Clases Principales
 # ● Organismo: Base para cualquier entidad viviente con propiedades como posición,
 # vida, energía, y velocidad.
@@ -12,7 +15,7 @@
 # mantenimiento del equilibrio ecológico.
 
 class Organismo:
-    def __init__(self, posicion, vida=100, energia=100, velocidad=0, nombre="", especie="", dieta="", altura=0):
+    def __init__(self, posicion, vida=100, energia=100, velocidad=0, nombre="", especie="", dieta="",):
         self.posicion = posicion
         self.vida = vida
         self.energia = energia
@@ -20,7 +23,7 @@ class Organismo:
         self.nombre = nombre
         self.especie = especie
         self.dieta = dieta
-        self.altura = altura
+
 
     def mover(self):
         self.posicion += self.velocidad
@@ -174,17 +177,16 @@ class Peces(Organismo):
 
         
 class arbol(Organismo):
-    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, altura):
+    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, ):
         super().__init__(posicion, vida, energia, velocidad)
         self.nombre = nombre
         self.especie = especie
         self.dieta = dieta
-        self.altura = altura
+
         self.velocidad = 0
         self.vida = 100
 
-    def crecer(self):
-        self.altura += 1
+
 
     def reproducir(self):
         return self
@@ -193,17 +195,16 @@ class arbol(Organismo):
         self.energia += 50  
         
 class arbusto(Organismo):
-    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, altura):
+    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, ):
         super().__init__(posicion, vida, energia, velocidad)
         self.nombre = nombre
         self.especie = especie
         self.dieta = dieta
-        self.altura = altura
+
         self.velocidad = 0
         self.vida = 100
 
-    def crecer(self):
-        self.altura += 1
+
 
     def reproducir(self):
         return self
@@ -212,17 +213,16 @@ class arbusto(Organismo):
         self.energia += 50
         
 class pasto(Organismo):
-    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, altura):
+    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, ):
         super().__init__(posicion, vida, energia, velocidad)
         self.nombre = nombre
         self.especie = especie
         self.dieta = dieta
-        self.altura = altura
+
         self.velocidad = 0
         self.vida = 100
 
-    def crecer(self):
-        self.altura += 1
+
 
     def reproducir(self):
         return self
@@ -231,17 +231,16 @@ class pasto(Organismo):
         self.energia += 50
         
 class flores(Organismo):
-    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, altura):
+    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, ):
         super().__init__(posicion, vida, energia, velocidad)
         self.nombre = nombre
         self.especie = especie
         self.dieta = dieta
-        self.altura = altura
+
         self.velocidad = 0
         self.vida = 100
 
-    def crecer(self):
-        self.altura += 1
+
 
     def reproducir(self):
         return self
@@ -250,33 +249,31 @@ class flores(Organismo):
         self.energia += 50
         
 class frutos(Organismo):
-    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, altura):
+    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, ):
         super().__init__(posicion, vida, energia, velocidad)
         self.nombre = nombre
         self.especie = especie
         self.dieta = dieta
-        self.altura = altura
+
         self.velocidad = 0
         self.vida = 100
 
-    def crecer(self):
-        self.altura += 1
+
 
     def desaparecer(self):
         self.vida += 15
 
 class raices(Organismo):
-    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, altura):
+    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, ):
         super().__init__(posicion, vida, energia, velocidad)
         self.nombre = nombre
         self.especie = especie
         self.dieta = dieta
-        self.altura = altura
+
         self.velocidad = 0
         self.vida = 100
 
-    def crecer(self):
-        self.altura += 1
+
 
     def reproducir(self):
         return self
@@ -285,16 +282,15 @@ class raices(Organismo):
         self.energia += 50
               
 class hongos(Organismo):
-    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, altura):
+    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, ):
         super().__init__(posicion, vida, energia, velocidad)
         self.nombre = nombre
         self.especie = especie
-        self.altura = altura
+
         self.velocidad = 0
         self.vida = 100
 
-    def crecer(self):
-        self.altura += 1
+
 
     def esporas(self):
         self.energia += 50
@@ -316,4 +312,24 @@ class ecosistema:
         self.Organismos = Organismos
         self.ambiente = ambiente
         
-                
+
+# Define la lista vacía para almacenar los animales
+lista_animales = []
+
+# Lista con las clases de animales
+clases_animales = [Leon, Jirafa, Cebras, Hiena, Rinoceronte, MambaNegra, Tortuga, Elefante, Peces]
+
+# Número de animales que deseas crear
+num_animales = 15
+
+# Genera instancias aleatorias de animales y añádelos a la lista
+for _ in range(num_animales):
+    clase_animal = ra.choice(clases_animales)  # Elige una clase de animal aleatoria
+    x = ra.randint(0, 800)  # Coordenada X aleatoria (ajusta el rango según el tamaño de la pantalla)
+    y = ra.randint(0, 600)  # Coordenada Y aleatoria (ajusta el rango según el tamaño de la pantalla)
+    animal = clase_animal(posicion=(x, y))  # Crea una instancia con posición aleatoria
+    lista_animales.append(animal)
+
+# Muestra las posiciones de los animales creados
+for animal in lista_animales:
+    print(f"Posición de {animal.__class__.__name__}: {animal.posicion}")
