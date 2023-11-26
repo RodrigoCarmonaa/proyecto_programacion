@@ -368,8 +368,8 @@ class Ventana(tk.Tk):
         lion_image = ImageTk.PhotoImage(lion_image)  # Convertir la imagen a un formato compatible con tkinter
 
         # Calcular la posición donde quieres colocar al león (por ejemplo, en la celda en la fila 2, columna 3)
-        x_posicion = 2 * self.ancho_celda
-        y_posicion = 3 * self.ancho_celda
+        x_posicion = 5 * self.ancho_celda
+        y_posicion = 8 * self.ancho_celda
 
         # Mostrar la imagen del león en el lienzo
         self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=lion_image)
