@@ -8,43 +8,36 @@
 # reproducción por semillas. Nota:#* Mínimo 5
 # ● Ambiente: Representa factores abióticos y eventos climáticos que afectan al
 # ecosistema. Nota: #*Mínimo 3
-# ● Ecosistema: Gestiona el ciclo de vida global, las interacciones entre organismos y el
+# ● Ecosistema: Gestiona el ciclo de vida global, las interacciones entre Organismos y el
 # mantenimiento del equilibrio ecológico.
 
-class organismo:
-    def __init__(self, posicion, vida, energia, velocidad):
+class Organismo:
+    def __init__(self, posicion, vida=100, energia=100, velocidad=0, nombre="", especie="", dieta="", altura=0):
         self.posicion = posicion
         self.vida = vida
         self.energia = energia
         self.velocidad = velocidad
-        
-    def mover(self):
-        nueva_posicion = self.posicion + self.velocidad
-        self.posicion = nueva_posicion
-
-    
-    def comer(self):
-        energia = self.energia + 1
-        self.energia = energia
-
-    
-    def reproducir(self):
-        return self
-        
-
-    def morir(self):
-        vida = self.vida - 1
-        self.vida = vida
-        
-
-class Leon(organismo):
-    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta):
-        super().__init__(posicion, vida, energia, velocidad)
         self.nombre = nombre
         self.especie = especie
         self.dieta = dieta
+        self.altura = altura
+
+    def mover(self):
+        self.posicion += self.velocidad
+
+    def comer(self):
+        self.energia += 30
+
+    def dormir(self):
+        self.energia += 50
+
+    def reproducir(self):
+        return self
+
+class Leon(Organismo):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
         self.velocidad = 20
-        self.vida = 100
 
     def cazar(self):
         self.energia -= 20
@@ -56,12 +49,24 @@ class Leon(organismo):
     def dormir(self):
         self.energia += 50
 
-class cebras(organismo):
-    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta):
-        super().__init__(posicion, vida, energia, velocidad)
-        self.nombre = nombre
-        self.especie = especie
-        self.dieta = dieta
+class Jirafa(Organismo):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
+        self.velocidad = 18
+
+    def huir(self):
+        self.energia -= 20
+        self.velocidad += 10
+
+    def comer(self):
+        self.energia += 30
+
+    def dormir(self):
+        self.energia += 50
+
+class Cebras(Organismo):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
         self.velocidad = 15
         self.vida = 100
 
@@ -75,31 +80,10 @@ class cebras(organismo):
     def dormir(self):
         self.energia += 50
         
-class jirafa(organismo):
-    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta):
-        super().__init__(posicion, vida, energia, velocidad)
-        self.nombre = nombre
-        self.especie = especie
-        self.dieta = dieta
-        self.velocidad = 18
-        self.vida = 100
 
-    def huir(self):
-        self.energia -= 20
-        self.velocidad += 10
-
-    def comer(self):
-        self.energia += 30
-
-    def dormir(self):
-        self.energia += 50
-            
-class hiena(organismo):
-    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta):
-        super().__init__(posicion, vida, energia, velocidad)
-        self.nombre = nombre
-        self.especie = especie
-        self.dieta = dieta
+class Hiena(Organismo):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
         self.velocidad = 20
         self.vida = 100
 
@@ -113,12 +97,9 @@ class hiena(organismo):
     def dormir(self):
         self.energia += 50        
 
-class rinoceronte(organismo):
-    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta):
-        super().__init__(posicion, vida, energia, velocidad)
-        self.nombre = nombre
-        self.especie = especie
-        self.dieta = dieta
+class Rinoceronte(Organismo):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
         self.velocidad = 15
         self.vida = 150
 
@@ -128,12 +109,9 @@ class rinoceronte(organismo):
     def dormir(self):
         self.energia += 50        
 
-class mamba_negra(organismo):
-    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta):
-        super().__init__(posicion, vida, energia, velocidad)
-        self.nombre = nombre
-        self.especie = especie
-        self.dieta = dieta
+class MambaNegra(Organismo):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
         self.velocidad = 10
         self.vida = 100
 
@@ -147,12 +125,9 @@ class mamba_negra(organismo):
     def dormir(self):
         self.energia += 50
 
-class tortuga(organismo):
-    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta):
-        super().__init__(posicion, vida, energia, velocidad)
-        self.nombre = nombre
-        self.especie = especie
-        self.dieta = dieta
+class Tortuga(Organismo):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
         self.velocidad = 5
         self.vida = 100
 
@@ -162,12 +137,9 @@ class tortuga(organismo):
     def dormir(self):
         self.energia += 50
         
-class elefante(organismo):
-    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta):
-        super().__init__(posicion, vida, energia, velocidad)
-        self.nombre = nombre
-        self.especie = especie
-        self.dieta = dieta
+class Elefante(Organismo):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
         self.velocidad = 10
         self.vida = 180
 
@@ -187,12 +159,9 @@ class elefante(organismo):
     def defender(self):
         self.energia -= 20            
     
-class peces(organismo):
-    def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta):
-        super().__init__(posicion, vida, energia, velocidad)
-        self.nombre = nombre
-        self.especie = especie
-        self.dieta = dieta
+class Peces(Organismo):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
         self.velocidad = 15
         self.vida = 5
 
@@ -202,8 +171,9 @@ class peces(organismo):
     def nadar(self):
         self.energia -= 20
         self.velocidad += 10
+
         
-class arbol(organismo):
+class arbol(Organismo):
     def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, altura):
         super().__init__(posicion, vida, energia, velocidad)
         self.nombre = nombre
@@ -222,7 +192,7 @@ class arbol(organismo):
     def fotosintesis(self):
         self.energia += 50  
         
-class arbusto(organismo):
+class arbusto(Organismo):
     def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, altura):
         super().__init__(posicion, vida, energia, velocidad)
         self.nombre = nombre
@@ -241,7 +211,7 @@ class arbusto(organismo):
     def fotosintesis(self):
         self.energia += 50
         
-class pasto(organismo):
+class pasto(Organismo):
     def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, altura):
         super().__init__(posicion, vida, energia, velocidad)
         self.nombre = nombre
@@ -260,7 +230,7 @@ class pasto(organismo):
     def fotosintesis(self):
         self.energia += 50
         
-class flores(organismo):
+class flores(Organismo):
     def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, altura):
         super().__init__(posicion, vida, energia, velocidad)
         self.nombre = nombre
@@ -279,7 +249,7 @@ class flores(organismo):
     def fotosintesis(self):
         self.energia += 50
         
-class frutos(organismo):
+class frutos(Organismo):
     def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, altura):
         super().__init__(posicion, vida, energia, velocidad)
         self.nombre = nombre
@@ -295,7 +265,7 @@ class frutos(organismo):
     def desaparecer(self):
         self.vida += 15
 
-class raices(organismo):
+class raices(Organismo):
     def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, altura):
         super().__init__(posicion, vida, energia, velocidad)
         self.nombre = nombre
@@ -314,7 +284,7 @@ class raices(organismo):
     def fotosintesis(self):
         self.energia += 50
               
-class hongos(organismo):
+class hongos(Organismo):
     def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, altura):
         super().__init__(posicion, vida, energia, velocidad)
         self.nombre = nombre
@@ -341,9 +311,9 @@ class ambiente:
         self.viento = viento
         
 class ecosistema:
-    def __init__(self, nombre, organismos, ambiente):
+    def __init__(self, nombre, Organismos, ambiente):
         self.nombre = nombre
-        self.organismos = organismos
+        self.Organismos = Organismos
         self.ambiente = ambiente
         
                 
