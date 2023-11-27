@@ -14,9 +14,12 @@ class Ventana(tk.Tk):
         self.columnas = columnas
         self.ancho_celda = ancho_celda
         self.lion_image = Image.open("leon.png")
+        self.jirafa_image = Image.open("jirafa.png")
+        self.jirafa_posicion = [3, 5]
         self.leon_posicion = [5, 8]  # Posición inicial del león
         self.crear_cuadricula()
         self.mostrar_leon()
+        self.mostrar_jirafa()  # Agregada la llamada a mostrar_jirafa
         self.mover_leon()  # Inicia el movimiento del león
 
     def crear_cuadricula(self):
@@ -75,7 +78,19 @@ class Ventana(tk.Tk):
         self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=self.lion_image, tags="leon")
 
         self.after(100, self.mover_leon)
-        
+    def mostrar_jirafa(self):
+        self.canvas.delete("jirafa")
+
+        jirafa_image = Image.open("jirafa.png")
+        jirafa_image = jirafa_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
+        jirafa_image = ImageTk.PhotoImage(jirafa_image)
+
+        x_posicion = self.jirafa_posicion[0] * self.ancho_celda
+        y_posicion = self.jirafa_posicion[1] * self.ancho_celda
+
+        self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=jirafa_image, tags="jirafa")
+        self.jirafa_image = jirafa_image
+
 if __name__ == "__main__":
     ventana = Ventana(filas=17, columnas=30, ancho_celda=40)
     ventana.mainloop()
