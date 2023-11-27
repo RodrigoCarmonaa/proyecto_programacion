@@ -2,6 +2,7 @@ import PIL
 import tkinter as tk
 from PIL import Image, ImageTk
 import random
+from random import choice
 
 
 class organismo:
@@ -59,32 +60,21 @@ class Animal(organismo):
         self.tiempo_sin_comida = 0
         self.tiempo_sin_agua = 0
 
-    def moverse(self, objetivo=None):
-        if objetivo:
-            # Calcula la dirección hacia el objetivo y mueve el animal en esa dirección
-            direccion_x = objetivo.ubicacion[0] - self.ubicacion[0]
-            direccion_y = objetivo.ubicacion[1] - self.ubicacion[1]
-            distancia = max(abs(direccion_x), abs(direccion_y))
+    def moverse_aleatoriamente(self):
+        direccion = choice(["arriba", "abajo", "izquierda", "derecha"])
 
-            if distancia > 0:
-                direccion_x /= distancia
-                direccion_y /= distancia
+        if direccion == "arriba":
+            self.posicion[1] -= 1
+        elif direccion == "abajo":
+            self.posicion[1] += 1
+        elif direccion == "izquierda":
+            self.posicion[0] -= 1
+        elif direccion == "derecha":
+            self.posicion[0] += 1
 
-                # Ajusta la velocidad del depredador al encontrar a la presa
-                if isinstance(objetivo, Planta):
-                    velocidad = min(self.velocidad, objetivo.velocidad)
-                else:
-                    velocidad = min(self.velocidad * 2, objetivo.velocidad)
-
-                # Mueve el animal en la dirección ajustada por su velocidad
-                nueva_ubicacion = (
-                    self.ubicacion[0] + int(direccion_x * velocidad),
-                    self.ubicacion[1] + int(direccion_y * velocidad)
-                )
-                self.ubicacion = nueva_ubicacion
-        else:
-            # Se mueve a una nueva ubicación dentro de su campo de visión
-            super().moverse()
+        # Limitar la posición dentro de los límites de la cuadrícula o el entorno
+        self.posicion[0] = max(0, min(self.posicion[0], self.columnas - 1))
+        self.posicion[1] = max(0, min(self.posicion[1], self.filas - 1))
 
     def buscar_presa(self, presas):
         # Busca presas dentro de su campo de visión
@@ -154,12 +144,13 @@ class Presa(Animal):
 
 class Leon(Depredador):
     def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta):
-        super().__init__(posicion, vida, energia, velocidad, hambre=1, sed=1, ciclo_vida=100)
+        super().__init__(posicion, vida, energia, velocidad)
         self.nombre = nombre
         self.especie = especie
         self.dieta = dieta
         self.velocidad = 20
         self.vida = 100
+
 
     def cazar(self, presa):
         # La función de caza específica para el león, disminuye la vida y aumenta la energía
@@ -443,65 +434,4 @@ class ecosistema:
         self.organismos = organismos
         self.ambiente = ambiente
 
-
-
-class Ventana(tk.Tk):
-    def __init__(self, filas, columnas, ancho_celda, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.filas = filas
-        self.columnas = columnas
-        self.ancho_celda = ancho_celda
-        self.lion_image = Image.open("leon.png")
-        self.leon_posicion = [5, 8]  # Posición inicial del león
-        self.crear_cuadricula()
-        self.mostrar_leon()
-        self.mover_leon()  # Inicia el movimiento del león
-
-    def crear_cuadricula(self):
-        canvas = tk.Canvas(self, width=self.columnas * self.ancho_celda, height=self.filas * self.ancho_celda)
-        canvas.pack()
-
-        for i in range(1, self.filas):
-            y = i * self.ancho_celda
-            canvas.create_line(0, y, self.columnas * self.ancho_celda, y)
-
-        for j in range(1, self.columnas):
-            x = j * self.ancho_celda
-            canvas.create_line(x, 0, x, self.filas * self.ancho_celda)
-
-        self.canvas = canvas  # Guardar una referencia al canvas para su uso posterior
-
-    def mostrar_leon(self):
-        lion_image = self.lion_image.resize((self.ancho_celda, self.ancho_celda), PIL.Image.Resampling.LANCZOS)
-        lion_image = ImageTk.PhotoImage(lion_image)
-        x_posicion = 5 * self.ancho_celda
-        y_posicion = 8 * self.ancho_celda
-        self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=lion_image)
-
-        # Mantén una referencia a la imagen para evitar que sea eliminada por el recolector de basura
-        self.lion_image = lion_image
-        # Calcular la posición donde quieres colocar al león (por ejemplo, en la celda en la fila 2, columna 3)
-        x_posicion = 5 * self.ancho_celda
-        y_posicion = 8 * self.ancho_celda
-
-        # Mostrar la imagen del león en el lienzo
-        self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=lion_image)
-
-    def mover_leon(self):
-        # Actualiza la posición del león
-        self.leon_posicion[0] += 1  # Mueve el león hacia la derecha
-        # Si el león sale de los límites, vuelve a la posición inicial
-        if self.leon_posicion[0] >= self.columnas:
-            self.leon_posicion[0] = 0
-
-        # Limpia el canvas antes de volver a dibujar al león en su nueva posición
-        self.canvas.delete("all")
-        self.crear_cuadricula()
-        self.mostrar_leon()
-
-        # Llama a esta función nuevamente después de un breve período (por ejemplo, 100 milisegundos)
-        self.after(100, self.mover_leon)
-if __name__ == "__main__":
-    ventana = Ventana(filas=15, columnas=15, ancho_celda=40)
-    ventana.mainloop()
-
+leon1 = Leon(posicion=[10, 15], vida=100, energia=80, velocidad=20, nombre="Simba", especie="Panthera leo", dieta="Carnívoro")
