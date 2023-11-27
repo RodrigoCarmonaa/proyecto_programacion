@@ -28,3 +28,10 @@ Presa: Otra subclase de Animal que se enfoca en la evasión de los depredadores.
 
 Estas clases y sus métodos permiten simular interacciones realistas entre depredadores y presas dentro del ecosistema, modelando movimientos, búsqueda de comida y agua, así como su ciclo de vida.
 
+Tkinter 
+
+Utilizando la librería Tkinter de Python. Se crea una  ventana muestra una cuadrícula que simula un entorno o ecosistema donde se mueven iconos representando a los animales, los animales se desplazan de manera aleatoria dentro de la cuadrícula, cambiando su posición en intervalos regulares de tiempo.
+
+EL código se organiza en una clase llamada Ventana, que se encarga de manejar la interfaz gráfica y el movimiento de los animales en un ecosistema simulado. Esta clase incluye métodos para crear la cuadrícula que representa el entorno del ecosistema, mostrar las imágenes de los animales (como leones, jirafas, hienas, entre otros) en posiciones específicas y mover a estos animales de manera aleatoria en la cuadrícula simulada. Además, es posible adaptar el código para mostrar la interacción entre los animales y las plantas, representando su comportamiento y las interacciones dentro de este ecosistema simulado.
+
+La función principal __main__ instancia un objeto de la clase Ventana con parámetros específicos (número de filas, columnas y ancho de las celdas) y ejecuta el bucle principal para mostrar y actualizar la ventana gráfica.
