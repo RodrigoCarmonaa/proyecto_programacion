@@ -1,3 +1,9 @@
+Proyecto de integracion 2
+Integrantes:
+-Rodrigo Carmona
+-Eduaro Escares
+
+
 Introducción: 
 
 El proyecto consiste en desarrollar un Simulador de Ecosistemas mediante la programación orientada a objetos. Este simulador busca representar y manipular distintos biomas, como selvas, desiertos y bosques, utilizando una matriz para simular interacciones entre la flora y fauna en un entorno dinámico y visualmente accesible.
