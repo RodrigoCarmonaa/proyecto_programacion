@@ -1,5 +1,12 @@
 # proyecto_programacion
 
+Integrantes:
+-
+-Rodrigo Carmona
+
+-Eduardo Escares
+
+
 
 Introducción: 
 
