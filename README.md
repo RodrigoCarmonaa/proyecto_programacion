@@ -1,4 +1,4 @@
-# proyecto_programacion
+Desarrollo de un Simulador de Ecosistemas mediante Programación Orientada a Objetos
 
 Integrantes:
 -
@@ -7,38 +7,38 @@ Integrantes:
 -Eduardo Escares
 
 
+Introducción:
 
-Introducción: 
+El presente informe detalla el desarrollo de un proyecto orientado a la creación de un Simulador de Ecosistemas mediante programación orientada a objetos. El objetivo principal es representar y manipular diversos biomas, como selvas, desiertos y bosques, utilizando una matriz para simular las interacciones entre la flora y fauna. Este enfoque proporciona un entorno dinámico y visualmente accesible, permitiendo comprender cómo los elementos de un ecosistema interactúan entre sí.
 
-El proyecto consiste en desarrollar un Simulador de Ecosistemas mediante la programación orientada a objetos. Este simulador busca representar y manipular distintos biomas, como selvas, desiertos y bosques, utilizando una matriz para simular interacciones entre la flora y fauna en un entorno dinámico y visualmente accesible.
+En resumen, el proyecto busca crear una herramienta interactiva que facilite la comprensión de las relaciones dentro de un ecosistema, desde organismos individuales hasta el entorno en su totalidad. El simulador proporciona la capacidad de ajustar variables ambientales y observar cómo estas influyen en la biodiversidad, las cadenas alimenticias y el equilibrio general del ecosistema.
 
-En resumen, el proyecto propone crear una herramienta interactiva que permita comprender cómo los elementos de un ecosistema interactúan entre sí, desde organismos individuales hasta su entorno. El simulador ofrece la capacidad de ajustar variables ambientales y observar cómo influyen en la biodiversidad, las cadenas alimenticias y el equilibrio general del ecosistema.
+**Descripción de las Clases y sus Métodos:**
 
+*Organismo:*
 
-Descripción de las clases y sus métodos:
+La clase organismo actúa como una plantilla base (clase padre) que posibilita la creación de instancias específicas con atributos como posición, nivel de vida, energía y velocidad. Esta abstracción simplifica la creación de diversos tipos de seres vivos o elementos del ecosistema en el programa al compartir características comunes definidas en la clase base.
 
-Organismo:
+*Planta:*
 
-La clase organismo se comporta como una plantilla base, permitiendo la creación de instancias específicas con atributos como posición, nivel de vida, energía y velocidad. Esto simplifica la creación de diversos tipos de seres vivos o elementos del ecosistema en el programa, ya que comparten estas características comunes definidas en la clase.(Clase padre)
+Esta clase hereda de la clase base organismo y encapsula propiedades y funcionalidades específicas de las plantas en el contexto del simulador ecológico. Gestiona aspectos vitales como vida, energía y velocidad, y cuenta con métodos que controlan su crecimiento, supervivencia bajo condiciones de sequía, interacciones con consumidores y capacidad reproductiva.
 
-Planta: 
+*Animales:*
 
-Esta clase hereda de la clase base organismo, encapsula las propiedades y funcionalidades específicas de las plantas en el contexto del simulador ecológico. Está diseñada para gestionar aspectos vitales como vida, energía, y velocidad, y tiene métodos que controlan su crecimiento, supervivencia bajo condiciones de sequía, interacciones con consumidores (animales que las comen), y su capacidad reproductiva.
+**Animal:** Clase base que representa a los animales en términos generales. Posee métodos para moverse aleatoriamente, buscar presas y fuentes de agua, alimentarse, beber y reproducirse. Controla el ciclo de vida del animal, gestionando su vida, energía, hambre, sed y capacidad de reproducción.
 
-Animales:
+**Depredador:** Subclase de Animal centrada en la caza. Implementa métodos específicos para buscar y cazar presas, además de lógica para su ciclo de vida, incluyendo la disminución gradual de su vida y energía.
 
-Animal: Esta clase base representa a los animales en términos generales. Posee métodos para moverse aleatoriamente, buscar presas y fuentes de agua, alimentarse, beber y reproducirse. También controla el ciclo de vida del animal, gestionando su vida, energía, hambre, sed y la capacidad de reproducción.
-
-Depredador: Una subclase de Animal que se enfoca en la caza. Implementa métodos específicos para buscar y cazar presas. Además, incluye una lógica para su ciclo de vida, que puede involucrar la disminución gradual de su vida y energía.
-
-Presa: Otra subclase de Animal que se enfoca en la evasión de los depredadores. Posee métodos para huir de los depredadores y también gestiona su ciclo de vida, con la disminución gradual de su vida y energía.
+**Presa:** Otra subclase de Animal centrada en la evasión de depredadores. Posee métodos para huir de los depredadores y gestiona su ciclo de vida con la disminución gradual de su vida y energía.
 
 Estas clases y sus métodos permiten simular interacciones realistas entre depredadores y presas dentro del ecosistema, modelando movimientos, búsqueda de comida y agua, así como su ciclo de vida.
 
-Tkinter 
+**Tkinter:**
 
-Utilizando la librería Tkinter de Python. Se crea una  ventana muestra una cuadrícula que simula un entorno o ecosistema donde se mueven iconos representando a los animales, los animales se desplazan de manera aleatoria dentro de la cuadrícula, cambiando su posición en intervalos regulares de tiempo.
+Se utiliza la librería Tkinter de Python para crear una ventana que muestra una cuadrícula simulando un entorno o ecosistema. Los iconos que representan a los animales se mueven aleatoriamente en intervalos regulares de tiempo dentro de la cuadrícula. El código se organiza en una clase llamada Ventana, encargada de manejar la interfaz gráfica y el movimiento de los animales en el ecosistema simulado.
 
-EL código se organiza en una clase llamada Ventana, que se encarga de manejar la interfaz gráfica y el movimiento de los animales en un ecosistema simulado. Esta clase incluye métodos para crear la cuadrícula que representa el entorno del ecosistema, mostrar las imágenes de los animales (como leones, jirafas, hienas, entre otros) en posiciones específicas y mover a estos animales de manera aleatoria en la cuadrícula simulada. Además, es posible adaptar el código para mostrar la interacción entre los animales y las plantas, representando su comportamiento y las interacciones dentro de este ecosistema simulado.
+La clase Ventana incluye métodos para crear la cuadrícula, mostrar imágenes de los animales en posiciones específicas y mover a los animales de manera aleatoria. La interfaz gráfica puede adaptarse para mostrar la interacción entre animales y plantas, representando su comportamiento y las dinámicas del ecosistema simulado.
 
-La función principal __main__ instancia un objeto de la clase Ventana con parámetros específicos (número de filas, columnas y ancho de las celdas) y ejecuta el bucle principal para mostrar y actualizar la ventana gráfica.
+La función principal `__main__` instancia un objeto de la clase Ventana con parámetros específicos (número de filas, columnas y ancho de las celdas) y ejecuta el bucle principal para mostrar y actualizar la ventana gráfica.
+
+En conclusión, el proyecto ofrece una herramienta versátil para comprender y visualizar dinámicas ecológicas, permitiendo ajustes ambientales y observando sus efectos en la biodiversidad y el equilibrio general del ecosistema.
