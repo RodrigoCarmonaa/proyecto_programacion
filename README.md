@@ -33,6 +33,32 @@ Esta clase hereda de la clase base organismo y encapsula propiedades y funcional
 
 Estas clases y sus métodos permiten simular interacciones realistas entre depredadores y presas dentro del ecosistema, modelando movimientos, búsqueda de comida y agua, así como su ciclo de vida.
 
+
+La clase `Ventana` se encarga de gestionar la interfaz gráfica y la representación visual de la simulación del ecosistema. Aquí hay un resumen de las principales funciones y responsabilidades de la clase:
+
+1. **Inicialización:**
+   - La clase se inicializa con parámetros como el número de filas y columnas del tablero, y el ancho de cada celda.
+   - Se cargan las imágenes de los animales y se establecen las posiciones iniciales y direcciones aleatorias de los mismos.
+
+2. **Creación de la Cuadrícula:**
+   - En el método `crear_cuadricula`, se genera la cuadrícula que servirá como el tablero visual para la simulación. Esta cuadrícula se crea usando la biblioteca Tkinter.
+
+3. **Visualización de Animales:**
+   - El método `mostrar_animales` se encarga de mostrar las imágenes de los animales en posiciones específicas en la cuadrícula. Antes de mostrarlas, las imágenes se redimensionan para adaptarse al tamaño de las celdas.
+
+4. **Movimiento de Animales:**
+   - La función `mover_animales` se ejecuta de forma continua en un bucle.
+   - Elimina las instancias previas de los animales en la cuadrícula.
+   - Llama al método `mover_animal_individual` para cada animal, actualizando su posición según su dirección actual y mostrando la imagen en la nueva posición.
+   - La dirección de cada animal se elige aleatoriamente para su próximo movimiento.
+
+5. **Método `mover_animal_individual`:**
+   - Elimina la instancia previa del animal en la cuadrícula.
+   - Calcula la nueva posición del animal según su dirección actual.
+   - Verifica la validez de la nueva posición, ajustándola si es necesario.
+   - Muestra la imagen del animal en la nueva posición.
+   - Elige una nueva dirección aleatoria si la posición resulta ser inválida.
+
 **Tkinter:**
 
 Se utiliza la librería Tkinter de Python para crear una ventana que muestra una cuadrícula simulando un entorno o ecosistema. Los iconos que representan a los animales se mueven aleatoriamente en intervalos regulares de tiempo dentro de la cuadrícula. El código se organiza en una clase llamada Ventana, encargada de manejar la interfaz gráfica y el movimiento de los animales en el ecosistema simulado.
