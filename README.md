@@ -59,6 +59,10 @@ La clase `Ventana` se encarga de gestionar la interfaz gráfica y la representac
    - Muestra la imagen del animal en la nueva posición.
    - Elige una nueva dirección aleatoria si la posición resulta ser inválida.
 
+5. **mapa.py:**
+
+    El algoritmo de ruido de Simplex crea números aleatorios para simular diferentes áreas en un mapa. Con esos números, puedes representar distintos tipos de lugares, como agua, tierra y pasto. El código  genera esos números y los convierte en colores para mostrarlos en un mapa e implementar a los animales en el mismo, para recrear un ecosistema
+
 **Tkinter:**
 
 Se utiliza la librería Tkinter de Python para crear una ventana que muestra una cuadrícula simulando un entorno o ecosistema. Los iconos que representan a los animales se mueven aleatoriamente en intervalos regulares de tiempo dentro de la cuadrícula. El código se organiza en una clase llamada Ventana, encargada de manejar la interfaz gráfica y el movimiento de los animales en el ecosistema simulado.
