@@ -226,13 +226,13 @@ class Ventana(tk.Tk):
         self.ancho_celda = ancho_celda
 
         # Cargar imágenes de animales
-        self.lion_image = Image.open("leon.png")
-        self.jirafa_image = Image.open("jirafa.png")
-        self.hiena_image = Image.open("hiena.png")
-        self.gacela_image = Image.open("gacela.png")
-        self.rinoceronte_image = Image.open("rinoceronte.png")
-        self.elefante_image = Image.open("elefante.png")
-        self.tortuga_image = Image.open("tortuga.png")
+        self.lion_image = Image.open("imagenes/leon.png")
+        self.jirafa_image = Image.open("imagenes/jirafa.png")
+        self.hiena_image = Image.open("imagenes/hiena.png")
+        self.gacela_image = Image.open("imagenes/gacela.png")
+        self.rinoceronte_image = Image.open("imagenes/rinoceronte.png")
+        self.elefante_image = Image.open("imagenes/elefante.png")
+        self.tortuga_image = Image.open("imagenes/tortuga.png")
 
         # Posiciones iniciales de los animales
         self.hiena_posicion = [4, 2]
