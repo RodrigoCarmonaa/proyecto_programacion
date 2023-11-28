@@ -5,8 +5,6 @@ import random
 from random import choice
 
 
-
-
 class Ventana(tk.Tk):
     def __init__(self, filas, columnas, ancho_celda, *args, **kwargs):
         super().__init__(*args, **kwargs)
