@@ -1,7 +1,11 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 from random import choice
+import logging
+# -*- coding: utf-8 -*-
 
+# Configurar el sistema de registro
+logging.basicConfig(filename='prueba.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 #####################################################################
 #                           organismos 
@@ -22,34 +26,29 @@ class Planta(Organismo):
     def __init__(self, nombre, tipo, ubicacion, vida, energia, velocidad, ciclo_vida, tiempo_sin_agua):
         super().__init__(nombre, ubicacion, vida, energia, velocidad)
         self.tipo = tipo
-        self.ciclo_vida = ciclo_vida  # Duración del ciclo de vida en iteraciones
-        self.tiempo_sin_agua = tiempo_sin_agua  # Número de iteraciones sin agua antes de secarse
+        self.ciclo_vida = ciclo_vida
+        self.tiempo_sin_agua = tiempo_sin_agua
 
     def crecer(self, cantidad_agua):
-        # La planta crece en función de la cantidad de agua que recibe
         factor_crecimiento = cantidad_agua / self.tiempo_sin_agua
         self.vida += factor_crecimiento
         self.energia += factor_crecimiento
 
     def morir(self):
-        # La planta muere cuando su ciclo de vida llega a cero o si no recibe agua durante un tiempo
         self.vida = max(0, self.vida - 1)
         self.energia = max(0, self.energia - 1)
 
     def ser_consumida(self):
-        # La planta es consumida por un animal, disminuyendo su vida y energía
         if self.vida > 0:
             self.vida -= 1
             self.energia -= 1
 
     def actualizar_estado(self, cantidad_agua):
-        # Actualiza el estado de la planta en cada iteración
         self.crecer(cantidad_agua)
         self.morir()
 
     def reproducirse(self):
-        # Lógica de reproducción de la planta
-        nueva_planta = Planta(f"NuevaPlanta_{choice.randint(1, 100)}", self.tipo, self.ubicacion, vida=1, energia=1, velocidad=1, ciclo_vida=self.ciclo_vida, tiempo_sin_agua=self.tiempo_sin_agua)
+        nueva_planta = Planta(f"NuevaPlanta_{choice(1, 100)}", self.tipo, self.ubicacion, vida=1, energia=1, velocidad=1, ciclo_vida=self.ciclo_vida, tiempo_sin_agua=self.tiempo_sin_agua)
         return nueva_planta
 
 
@@ -62,14 +61,13 @@ class Animal(Organismo):
         self.especie = especie
         self.hambre = hambre
         self.sed = sed
-        self.campo_vision = 2  # Campo de visión alrededor del animal
-        self.ciclo_vida = ciclo_vida  # Número de iteraciones antes de morir sin comida o agua
+        self.campo_vision = 2
+        self.ciclo_vida = ciclo_vida
         self.tiempo_sin_comida = 0
         self.tiempo_sin_agua = 0
 
     def moverse(self, objetivo=None):
         if objetivo:
-            # Calcula la dirección hacia el objetivo y mueve el animal en esa dirección
             direccion_x = objetivo.ubicacion[0] - self.ubicacion[0]
             direccion_y = objetivo.ubicacion[1] - self.ubicacion[1]
             distancia = max(abs(direccion_x), abs(direccion_y))
@@ -78,24 +76,20 @@ class Animal(Organismo):
                 direccion_x /= distancia
                 direccion_y /= distancia
 
-                # Ajusta la velocidad del depredador al encontrar a la presa
                 if isinstance(objetivo, Planta):
                     velocidad = min(self.velocidad, objetivo.velocidad)
                 else:
                     velocidad = min(self.velocidad * 2, objetivo.velocidad)
 
-                # Mueve el animal en la dirección ajustada por su velocidad
                 nueva_ubicacion = (
                     self.ubicacion[0] + int(direccion_x * velocidad),
                     self.ubicacion[1] + int(direccion_y * velocidad)
                 )
                 self.ubicacion = nueva_ubicacion
         else:
-            # Se mueve a una nueva ubicación dentro de su campo de visión
             super().moverse()
 
     def buscar_presa(self, presas):
-        # Busca presas dentro de su campo de visión
         for presa in presas:
             distancia = abs(self.ubicacion[0] - presa.ubicacion[0]) + abs(self.ubicacion[1] - presa.ubicacion[1])
             if distancia <= self.campo_vision and self.hambre > 0:
@@ -103,7 +97,6 @@ class Animal(Organismo):
         return None
 
     def buscar_charco(self, charcos):
-        # Busca charcos de agua dentro de su campo de visión
         for charco in charcos:
             distancia = abs(self.ubicacion[0] - charco.ubicacion[0]) + abs(self.ubicacion[1] - charco.ubicacion[1])
             if distancia <= self.campo_vision and self.sed > 0:
@@ -111,20 +104,17 @@ class Animal(Organismo):
         return None
 
     def alimentarse(self, presa):
-        # Se alimenta de la presa
         if presa:
             self.energia += presa.vida
             self.hambre = max(0, self.hambre - presa.vida)
 
     def beber(self, charco):
-        # Bebe agua del charco
         if charco:
             self.energia += charco.agua
             self.sed = max(0, self.sed - charco.agua)
 
     def reproducirse(self):
-        # Lógica de reproducción
-        nuevo_animal = Animal(f"NuevoAnimal_{choice.randint(1, 100)}", self.especie, self.ubicacion, vida=1, energia=1, velocidad=1, hambre=1, sed=1)
+        nuevo_animal = Animal(f"NuevoAnimal_{choice(1, 100)}", self.especie, self.ubicacion, vida=1, energia=1, velocidad=1, hambre=1, sed=1)
         return nuevo_animal
 
 
@@ -136,17 +126,14 @@ class Depredador(Animal):
         super().__init__(nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida)
 
     def cazar(self, presas):
-        # Lógica de caza: El depredador busca presas y las persigue
         presa = self.buscar_presa(presas)
         self.moverse(presa)
         self.alimentarse(presa)
 
     def ciclo_vida(self):
-        # Añade lógica para el ciclo de vida de los depredadores, por ejemplo, decrementa su vida y energía con el tiempo
         self.vida -= 1
         self.energia -= 1
 
-    # Puedes agregar más funciones específicas para los depredadores
 
 #####################################################################
 #                           PRESA
@@ -156,16 +143,12 @@ class Presa(Animal):
         super().__init__(nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida)
 
     def huir(self, depredadores):
-        # Lógica de huida: La presa busca depredadores y trata de huir
         depredador = self.buscar_depredador(depredadores)
         self.moverse(depredador)
 
     def ciclo_vida(self):
-        # Añade lógica para el ciclo de vida de las presas, por ejemplo, decrementa su vida y energía con el tiempo
         self.vida -= 1
         self.energia -= 1
-
-    # Puedes agregar más funciones específicas para las presas
 
 #####################################################################
 #                           AMBIENTE
@@ -193,13 +176,14 @@ class SavanaAfricana:
         self.fauna = fauna
 
     def ciclo_estacional(self):
-        return
+        pass
 
     def agregar_planta(self, planta):
-        return
+        pass
 
     def agregar_animal(self, animal):
-        return
+        pass
+
 
 
 #####################################################################
@@ -211,8 +195,7 @@ class Ecosistema:
         self.ambiente = []
 
     def ciclo_global(self):
-        # Implementa la lógica para simular el ciclo de vida global aquí
-        return
+        pass
     
 #####################################################################
 #                           VENTANA
@@ -224,6 +207,9 @@ class Ventana(tk.Tk):
         self.filas = filas
         self.columnas = columnas
         self.ancho_celda = ancho_celda
+        
+        # Configurar el sistema de registro para la ventana
+        logging.basicConfig(filename='movimientos.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', encoding='utf-8')
 
         # Cargar imágenes de animales
         self.lion_image = Image.open("imagenes/leon.png")
@@ -325,14 +311,27 @@ class Ventana(tk.Tk):
         # Eliminar instancias previas de los animales
         self.canvas.delete("leon", "jirafa", "hiena", "gacela", "rinoceronte", "elefante", "tortuga")
 
-        # Mover cada animal individualmente
+        # Mover cada animal individualmente y registrar el movimiento
         self.leon_posicion = self.mover_animal_individual("leon", self.leon_posicion, self.direccion_leon)
+        self.registrar_movimiento("leon", self.leon_posicion)
+        
         self.jirafa_posicion = self.mover_animal_individual("jirafa", self.jirafa_posicion, self.direccion_jirafa)
+        self.registrar_movimiento("jirafa", self.jirafa_posicion)
+        
         self.hiena_posicion = self.mover_animal_individual("hiena", self.hiena_posicion, self.direccion_hiena)
+        self.registrar_movimiento("hiena", self.hiena_posicion)
+        
         self.gacela_posicion = self.mover_animal_individual("gacela", self.gacela_posicion, self.direccion_gacela)
+        self.registrar_movimiento("gacela", self.gacela_posicion)
+        
         self.rinoceronte_posicion = self.mover_animal_individual("rinoceronte", self.rinoceronte_posicion, self.direccion_rinoceronte)
+        self.registrar_movimiento("rinoceronte", self.rinoceronte_posicion)
+        
         self.elefante_posicion = self.mover_animal_individual("elefante", self.elefante_posicion, self.direccion_elefante)
+        self.registrar_movimiento("elefante", self.elefante_posicion)
+        
         self.tortuga_posicion = self.mover_animal_individual("tortuga", self.tortuga_posicion, self.direccion_tortuga)
+        self.registrar_movimiento("tortuga", self.tortuga_posicion)
 
         # Establecer un retardo y llamar a la función nuevamente
         self.after(300, self.mover_animales)
@@ -384,6 +383,10 @@ class Ventana(tk.Tk):
 
         self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=image, tags=tag)
         return posicion
+    
+    def registrar_movimiento(self, animal, posicion):
+        mensaje = f"{animal} se movió a la posición {posicion}"
+        logging.info(mensaje)
 
 if __name__ == "__main__":
     ventana = Ventana(filas=27, columnas=40, ancho_celda=25)
