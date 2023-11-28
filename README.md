@@ -63,6 +63,25 @@ La clase `Ventana` se encarga de gestionar la interfaz gráfica y la representac
 
     El algoritmo de ruido de Simplex crea números aleatorios para simular diferentes áreas en un mapa. Con esos números, puedes representar distintos tipos de lugares, como agua, tierra y pasto. El código  genera esos números y los convierte en colores para mostrarlos en un mapa e implementar a los animales en el mismo, para recrear un ecosistema
 
+
+El log (archivo de registro) en este código se utiliza para registrar eventos significativos o información relevante durante la ejecución del programa. En este caso, se está utilizando el módulo de registro logging de Python para llevar un registro de los movimientos de los animales en el ecosistema simulado.
+
+El log tiene varios propósitos:
+
+Seguimiento de Eventos:
+
+Cada vez que un animal se mueve, se registra un mensaje que incluye el nombre del animal y su nueva posición. Esto ayuda a rastrear cómo se mueven los animales a lo largo del tiempo.
+Registro de Información:
+
+Los mensajes de registro proporcionan información sobre el estado del programa en momentos clave. Por ejemplo, cuando un animal se mueve, se registra esa acción, lo que puede ser útil para el análisis y la depuración.
+Depuración:
+
+En caso de errores o comportamientos inesperados, el log puede ser una herramienta valiosa para depurar el programa. Al revisar el registro, puedes identificar qué acciones se llevaron a cabo antes de que ocurriera un problema.
+Análisis Posterior:
+
+Después de la ejecución del programa, el archivo de registro puede ser revisado para analizar el comportamiento de los animales a lo largo del tiempo y obtener información sobre cómo interactúan en el ecosistema simulado.
+La configuración del registro se realiza al comienzo del código, donde se establece el formato del mensaje, el nivel de registro (DEBUG en este caso, que registra todos los eventos), y se especifica el archivo en el que se guardará el log (movimientos.log en este caso).
+
 **Tkinter:**
 
 Se utiliza la librería Tkinter de Python para crear una ventana que muestra una cuadrícula simulando un entorno o ecosistema. Los iconos que representan a los animales se mueven aleatoriamente en intervalos regulares de tiempo dentro de la cuadrícula. El código se organiza en una clase llamada Ventana, encargada de manejar la interfaz gráfica y el movimiento de los animales en el ecosistema simulado.
