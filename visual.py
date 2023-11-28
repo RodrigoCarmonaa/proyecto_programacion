@@ -402,7 +402,7 @@ class raices(organismo):
     def fotosintesis(self):
         self.energia += 50
               
-class hongos(organismo):
+class gacela(organismo):
     def __init__(self, posicion, vida, energia, velocidad, nombre, especie, dieta, altura):
         super().__init__(posicion, vida, energia, velocidad)
         self.nombre = nombre
