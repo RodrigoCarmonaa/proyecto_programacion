@@ -9,9 +9,6 @@ class Organismo:
         self.energia = energia
         self.velocidad = velocidad
 
-
-
-
 class Planta(Organismo):
     def __init__(self, nombre, tipo, ubicacion, vida, energia, velocidad, ciclo_vida, tiempo_sin_agua):
         super().__init__(nombre, ubicacion, vida, energia, velocidad)
@@ -45,8 +42,6 @@ class Planta(Organismo):
         # Lógica de reproducción de la planta
         nueva_planta = Planta(f"NuevaPlanta_{random.randint(1, 100)}", self.tipo, self.ubicacion, vida=1, energia=1, velocidad=1, ciclo_vida=self.ciclo_vida, tiempo_sin_agua=self.tiempo_sin_agua)
         return nueva_planta
-
-    
 
 
 #####################################################################
