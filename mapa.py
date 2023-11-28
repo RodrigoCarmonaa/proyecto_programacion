@@ -101,7 +101,7 @@ class Ventana(tk.Tk):
                         imagen_fondo = self.pasto_image
                     elif self.mapa_numerico[fila][columna] == 2:
                         imagen_fondo = self.tierra_image
-
+    
                     if imagen_fondo:
                         x_posicion = columna * self.ancho_celda
                         y_posicion = fila * self.ancho_celda
