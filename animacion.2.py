@@ -163,6 +163,7 @@ class Leon(Depredador):
         self.atacar(presa)
         self.energia -= 20  # Reduzco energía específica del león al cazar
         self.velocidad += 8  # Incremento de velocidad específico del león al cazar
+        self.comer()  # Incremento de velocidad específico del león al cazar
 
     def comer(self):
         self.energia += 30
@@ -177,8 +178,9 @@ class Hiena(Depredador):
         self.vida = 100
 
     def cazar(self):
-        self.energia -= 20
-        self.velocidad += 8
+            self.energia -= 20
+            self.velocidad += 8
+            self.comer()
 
     def comer(self):
         self.energia += 30
@@ -201,6 +203,13 @@ class Presa(Animal):
         super().ciclo_vida()
         self.hambre -= 1
         self.sed -= 1
+    
+    def ser_consumida(self):
+        if self.vida > 0:
+            self.vida -= 1
+            self.energia -= 1
+            if self.vida <= 0:
+                self.morir()
 
 class Jirafa(Presa):
     def __init__(self, nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida):
@@ -375,6 +384,9 @@ class Ventana(tk.Tk):
         self.mostrar_animales()
         self.mover_animales()
 
+    def eliminar_animal(self, tag):
+        self.canvas.delete(tag)
+
     def crear_fondo(self):
             for fila in range(self.filas):
                 for columna in range(self.columnas):
@@ -458,34 +470,35 @@ class Ventana(tk.Tk):
             y_posicion = posiciones[tag][1] * self.ancho_celda
             self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=image, tags=tag)
 
-    def mover_animales(self):
+    def mover_animales(self, rango=1):
         # Eliminar instancias previas de los animales
         self.canvas.delete("leon", "jirafa", "hiena", "gacela", "rinoceronte", "elefante", "tortuga")
 
         # Mover cada animal individualmente y registrar el movimiento
         self.leon_posicion = self.mover_animal_individual("leon", self.leon_posicion, self.direccion_leon)
         self.registrar_movimiento("leon", self.leon_posicion)
-        
+
         self.jirafa_posicion = self.mover_animal_individual("jirafa", self.jirafa_posicion, self.direccion_jirafa)
         self.registrar_movimiento("jirafa", self.jirafa_posicion)
-        
+
         self.hiena_posicion = self.mover_animal_individual("hiena", self.hiena_posicion, self.direccion_hiena)
         self.registrar_movimiento("hiena", self.hiena_posicion)
-        
+
         self.gacela_posicion = self.mover_animal_individual("gacela", self.gacela_posicion, self.direccion_gacela)
         self.registrar_movimiento("gacela", self.gacela_posicion)
-        
+
         self.rinoceronte_posicion = self.mover_animal_individual("rinoceronte", self.rinoceronte_posicion, self.direccion_rinoceronte)
         self.registrar_movimiento("rinoceronte", self.rinoceronte_posicion)
-        
+
+        # Agregar el caso para "elefante"
         self.elefante_posicion = self.mover_animal_individual("elefante", self.elefante_posicion, self.direccion_elefante)
         self.registrar_movimiento("elefante", self.elefante_posicion)
-        
+
         self.tortuga_posicion = self.mover_animal_individual("tortuga", self.tortuga_posicion, self.direccion_tortuga)
         self.registrar_movimiento("tortuga", self.tortuga_posicion)
 
         # Establecer un retardo y llamar a la función nuevamente
-        self.after(300, self.mover_animales)
+        self.after(300, self.mover_animales, rango)
 
         animales_en_posiciones = {
             "leon": self.leon_posicion,
@@ -497,18 +510,26 @@ class Ventana(tk.Tk):
             "tortuga": self.tortuga_posicion,
         }
 
-        for atacante_tag, atacante_posicion in animales_en_posiciones.items():
+        # Verificar si el león o la hiena están en rango de una celda de una presa
+        for depredador_tag, depredador_posicion in animales_en_posiciones.items():
             for presa_tag, presa_posicion in animales_en_posiciones.items():
-                if atacante_tag != presa_tag:
-                    distancia = abs(atacante_posicion[0] - presa_posicion[0]) + abs(atacante_posicion[1] - presa_posicion[1])
-                    if distancia <= 1:
+                if depredador_tag != presa_tag:
+                    distancia = abs(depredador_posicion[0] - presa_posicion[0]) + abs(depredador_posicion[1] - presa_posicion[1])
+                    if distancia <= rango:
                         # Los animales están dentro del campo de visión
-                        atacante = next(animal for animal in self.ambiente.animales if animal.nombre == atacante_tag)
-                        presa = next(animal for animal in self.ambiente.animales if animal.nombre == presa_tag)
-                        atacante.atacar(presa)
+                        depredador = next(animal for animal in ambiente.animales if animal.nombre == depredador_tag)
+                        presa = next(animal for animal in ambiente.animales if animal.nombre == presa_tag)
+                        depredador.atacar(presa)
+                        if presa.vida <= 0:
+                            self.eliminar_animal(presa_tag)
+
+                            # También elimina el animal de la lista en el ambiente
+                            ambiente.animales.remove(presa)
+                            mensaje = f"{depredador_tag} cazó y se comió a {presa_tag}"
+                            logging.info(mensaje)
 
 
-    def mover_animal_individual(self, tag, posicion, direccion):
+    def mover_animal_individual(self, tag, posicion, direccion, rango=1 ):
         # Eliminar la instancia previa del animal
         self.canvas.delete(tag)
 
