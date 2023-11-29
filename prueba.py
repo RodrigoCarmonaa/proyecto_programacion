@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 from random import choice
 import random
 import logging
+
 # -*- coding: utf-8 -*-
 
 # Configurar el sistema de registro
@@ -152,8 +153,9 @@ class Depredador(Animal):
         self.energia -= 1
 
 class Leon(Depredador):
-    def __init__(self, nombre, especie, ubicacion, vida, energia, hambre, sed, ciclo_vida):
-        super().__init__(nombre, especie, ubicacion, vida, energia, velocidad=20, hambre=hambre, sed=sed, ciclo_vida=ciclo_vida)
+    def __init__(self, nombre, especie, ubicacion, vida, energia,velocidad, hambre, sed, ciclo_vida):
+        super().__init__(nombre, especie, ubicacion, vida, energia, velocidad, hambre=hambre, sed=sed, ciclo_vida=ciclo_vida)
+
 
     def cazar(self, presas):
         presa = self.buscar_presa(presas)
@@ -168,9 +170,9 @@ class Leon(Depredador):
     def dormir(self):
         self.energia += 50
 
-class Hiena(Organismo):
-    def __init__(self, posicion, nombre="", especie="", dieta=""):
-        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
+class Hiena(Depredador):
+    def __init__(self, nombre, especie, ubicacion, vida, energia,velocidad, hambre, sed, ciclo_vida):
+        super().__init__(nombre, especie, ubicacion, vida, energia, velocidad, hambre=hambre, sed=sed, ciclo_vida=ciclo_vida)
         self.velocidad = 20
         self.vida = 100
 
@@ -192,19 +194,17 @@ class Presa(Animal):
 
     def huir(self, depredadores):
         depredador = self.buscar_depredador(depredadores)
-        self.moverse(depredador)
-
-    def huir(self, depredadores):
-        depredador = self.buscar_depredador(depredadores)
-        self.moverse(depredador)    
+        if depredador:
+            self.moverse(depredador)
 
     def ciclo_vida(self):
-        self.vida -= 1
-        self.energia -= 1
+        super().ciclo_vida()
+        self.hambre -= 1
+        self.sed -= 1
 
 class Jirafa(Presa):
-    def __init__(self, posicion, nombre="", especie="", dieta=""):
-        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
+    def __init__(self, nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida):
+        super().__init__(nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida)
         self.velocidad = 18
 
     def huir(self):
@@ -218,8 +218,8 @@ class Jirafa(Presa):
         self.energia += 50
 
 class Gacela(Presa):
-    def __init__(self, posicion, nombre="", especie="", dieta=""):
-        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
+    def __init__(self, nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida):
+        super().__init__(nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida)
         self.velocidad = 15
         self.vida = 100
 
@@ -233,9 +233,9 @@ class Gacela(Presa):
     def dormir(self):
         self.energia += 50
 
-class Rinoceronte(Organismo):
-    def __init__(self, posicion, nombre="", especie="", dieta=""):
-        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
+class Rinoceronte(Presa):
+    def __init__(self, nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida):
+        super().__init__(nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida)
         self.velocidad = 15
         self.vida = 150
 
@@ -245,9 +245,9 @@ class Rinoceronte(Organismo):
     def dormir(self):
         self.energia += 50
 
-class Tortuga(Organismo):
-    def __init__(self, posicion, nombre="", especie="", dieta=""):
-        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
+class Tortuga(Presa):
+    def __init__(self, nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida):
+        super().__init__(nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida)
         self.velocidad = 5
         self.vida = 100
 
@@ -263,13 +263,22 @@ class Tortuga(Organismo):
 class Ambiente:
     def __init__(self):
         self.eventos_aleatorios = []
+        self.animales = []
 
     def agregar_evento_aleatorio(self, evento):
         self.eventos_aleatorios.append(evento)
 
+    def agregar_animal(self, animal):
+        self.animales.append(animal)
+
     def ejecutar_eventos_aleatorios(self):
         for evento in self.eventos_aleatorios:
             evento()
+
+    def ejecutar_ciclo_animales(self):
+        for animal in self.animales:
+            animal.ciclo_vida()
+            animal.actualizar_estado(1)
 
 #####################################################################
 #                           SAVANA
@@ -299,18 +308,20 @@ class SavanaAfricana:
 class Ecosistema:
     def __init__(self):
         self.organismos = []
-        self.ambiente = []
+        self.ambiente = Ambiente()
 
     def ciclo_global(self):
-        pass
+        self.ambiente.ejecutar_eventos_aleatorios()
+        self.ambiente.ejecutar_ciclo_animales()
     
 #####################################################################
 #                           VENTANA
 #####################################################################
 
 class Ventana(tk.Tk):
-    def __init__(self, filas, columnas, ancho_celda, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, filas, columnas, ancho_celda, mapa_numerico, **kwargs):
+        super().__init__(**kwargs)
+
         self.filas = filas
         self.columnas = columnas
         self.ancho_celda = ancho_celda
@@ -492,8 +503,8 @@ class Ventana(tk.Tk):
                     distancia = abs(atacante_posicion[0] - presa_posicion[0]) + abs(atacante_posicion[1] - presa_posicion[1])
                     if distancia <= 1:
                         # Los animales están dentro del campo de visión
-                        atacante = next(animal for animal in self.ambiente if animal.nombre == atacante_tag)
-                        presa = next(animal for animal in self.ambiente if animal.nombre == presa_tag)
+                        atacante = next(animal for animal in self.ambiente.animales if animal.nombre == atacante_tag)
+                        presa = next(animal for animal in self.ambiente.animales if animal.nombre == presa_tag)
                         atacante.atacar(presa)
 
 
@@ -576,7 +587,30 @@ for fila in biome_noise:
             mapa_fila.append(2)  # Café
     mapa_numerico.append(mapa_fila)
 
+# ...
+
 if __name__ == "__main__":
-    ventana = Ventana(filas=27, columnas=40, ancho_celda=25)
+    global ambiente  # Agrega esta línea para acceder a la variable ambiente en el alcance global
+    ambiente = Ambiente()  # Mueve la creación de ambiente aquí
+
+    ecosistema = Ecosistema()
+    ecosistema.ambiente = ambiente
+    ecosistema.ciclo_global()
+    
+    leon = Leon(nombre="Leon1", especie="Leon", ubicacion=[5, 8], vida=100, energia=100, velocidad=20, hambre=50, sed=50, ciclo_vida=10)
+    hiena = Hiena(nombre="Hiena1", especie="Hiena", ubicacion=[4, 2], vida=80, energia=80, velocidad=20, hambre=40, sed=40, ciclo_vida=10)
+    jirafa = Jirafa(nombre="Jirafa1", especie="Jirafa", ubicacion=[3, 5], vida=100, energia=100, velocidad=18, hambre=50, sed=50, ciclo_vida=10)
+    gacela = Gacela(nombre="Gacela1", especie="Gacela", ubicacion=[1, 1], vida=80, energia=80, velocidad=15, hambre=40, sed=40, ciclo_vida=10)
+    rinoceronte = Rinoceronte(nombre="Rinoceronte1", especie="Rinoceronte", ubicacion=[8, 15], vida=150, energia=150, velocidad=15, hambre=75, sed=75, ciclo_vida=15)
+    tortuga = Tortuga(nombre="Tortuga1", especie="Tortuga", ubicacion=[15, 25], vida=100, energia=100, velocidad=5, hambre=50, sed=50, ciclo_vida=20)
+
+    ambiente.agregar_animal(leon)
+    ambiente.agregar_animal(hiena)
+    ambiente.agregar_animal(jirafa)
+    ambiente.agregar_animal(gacela)
+    ambiente.agregar_animal(rinoceronte)
+    ambiente.agregar_animal(tortuga)
+
+    ventana = Ventana(filas=27, columnas=40, ancho_celda=25, mapa_numerico=mapa_numerico)
     ventana.mainloop()
 
