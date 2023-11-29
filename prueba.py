@@ -303,6 +303,45 @@ class Ecosistema:
 
     def ciclo_global(self):
         pass
+#####################################################################
+#                           MOTOR DE EVENTOS
+#####################################################################
+class Meteorito:
+    def __init__(self, ventana, area_impacto_x, area_impacto_y, radio_impacto, frecuencia_ciclos):
+        self.ventana = ventana
+        self.area_impacto_x = area_impacto_x
+        self.area_impacto_y = area_impacto_y
+        self.radio_impacto = radio_impacto
+        self.frecuencia_ciclos = frecuencia_ciclos
+        self.ciclos_transcurridos = 0
+
+    def activar(self):
+        if self.ciclos_transcurridos % self.frecuencia_ciclos == 0:
+            self.impacto()
+
+        self.ciclos_transcurridos += 1
+
+    def impacto(self):
+        # Área de impacto del meteorito
+        min_x = max(0, self.area_impacto_x - self.radio_impacto)
+        max_x = min(len(self.ventana.mapa_numerico), self.area_impacto_x + self.radio_impacto + 1)
+        min_y = max(0, self.area_impacto_y - self.radio_impacto)
+        max_y = min(len(self.ventana.mapa_numerico[0]), self.area_impacto_y + self.radio_impacto + 1)
+
+        # Acceder a la lista de organismos en el simulador
+        organismos = self.ventana.ambiente.organismos
+
+        # Eliminar animales dentro del área de impacto
+        for animal in organismos:
+            if min_x <= animal.ubicacion[0] < max_x and min_y <= animal.ubicacion[1] < max_y:
+                # Eliminar el animal del ecosistema
+                self.ventana.ambiente.organismos.remove(animal)
+
+        # Actualización del entorno después del impacto
+        self.ventana.crear_fondo()
+        self.ventana.mostrar_animales()
+        pass
+
     
 #####################################################################
 #                           VENTANA
@@ -364,6 +403,15 @@ class Ventana(tk.Tk):
         self.mostrar_animales()
         self.mover_animales()
 
+        self.boton_meteorito = tk.Button(self, text="Activar Meteorito", command=self.activar_meteorito)
+        self.boton_meteorito.pack()
+
+
+    def activar_meteorito(self):
+        # Crear una instancia del meteorito y activar el impacto
+        meteorito = Meteorito(self, area_impacto_x=10, area_impacto_y=10, radio_impacto=3, frecuencia_ciclos=1000)
+        meteorito.impacto()
+    
     def crear_fondo(self):
             for fila in range(self.filas):
                 for columna in range(self.columnas):
