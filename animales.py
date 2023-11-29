@@ -67,7 +67,7 @@ class Jirafa(Organismo):
     def dormir(self):
         self.energia += 50
 
-class Cebras(Organismo):
+class Gacela(Organismo):
     def __init__(self, posicion, nombre="", especie="", dieta=""):
         super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
         self.velocidad = 15

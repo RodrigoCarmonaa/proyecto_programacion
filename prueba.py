@@ -1,6 +1,8 @@
+from opensimplex import OpenSimplex
 import tkinter as tk
 from PIL import Image, ImageTk
 from random import choice
+import random
 import logging
 # -*- coding: utf-8 -*-
 
@@ -66,6 +68,21 @@ class Animal(Organismo):
         self.tiempo_sin_comida = 0
         self.tiempo_sin_agua = 0
 
+    def atacar(self, presa):
+        if presa:
+            # El animal inflige daño a la presa
+            presa.recibir_ataque(self)
+
+    def recibir_ataque(self, atacante):
+        # El animal recibe daño del atacante
+        self.vida -= atacante.energia
+
+        # Si la vida del animal cae a cero o menos, muere
+        if self.vida <= 0:
+            self.vida = 0
+            self.energia = 0
+
+
     def moverse(self, objetivo=None):
         if objetivo:
             direccion_x = objetivo.ubicacion[0] - self.ubicacion[0]
@@ -128,13 +145,44 @@ class Depredador(Animal):
     def cazar(self, presas):
         presa = self.buscar_presa(presas)
         self.moverse(presa)
-        self.alimentarse(presa)
+        self.atacar(presa)
 
     def ciclo_vida(self):
         self.vida -= 1
         self.energia -= 1
 
+class Leon(Depredador):
+    def __init__(self, nombre, especie, ubicacion, vida, energia, hambre, sed, ciclo_vida):
+        super().__init__(nombre, especie, ubicacion, vida, energia, velocidad=20, hambre=hambre, sed=sed, ciclo_vida=ciclo_vida)
 
+    def cazar(self, presas):
+        presa = self.buscar_presa(presas)
+        self.moverse(presa)
+        self.atacar(presa)
+        self.energia -= 20  # Reduzco energía específica del león al cazar
+        self.velocidad += 8  # Incremento de velocidad específico del león al cazar
+
+    def comer(self):
+        self.energia += 30
+
+    def dormir(self):
+        self.energia += 50
+
+class Hiena(Organismo):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
+        self.velocidad = 20
+        self.vida = 100
+
+    def cazar(self):
+        self.energia -= 20
+        self.velocidad += 8
+
+    def comer(self):
+        self.energia += 30
+
+    def dormir(self):
+        self.energia += 50   
 #####################################################################
 #                           PRESA
 #####################################################################
@@ -146,10 +194,69 @@ class Presa(Animal):
         depredador = self.buscar_depredador(depredadores)
         self.moverse(depredador)
 
+    def huir(self, depredadores):
+        depredador = self.buscar_depredador(depredadores)
+        self.moverse(depredador)    
+
     def ciclo_vida(self):
         self.vida -= 1
         self.energia -= 1
 
+class Jirafa(Presa):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
+        self.velocidad = 18
+
+    def huir(self):
+        self.energia -= 20
+        self.velocidad += 10
+
+    def comer(self):
+        self.energia += 30
+
+    def dormir(self):
+        self.energia += 50
+
+class Gacela(Presa):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
+        self.velocidad = 15
+        self.vida = 100
+
+    def huir(self):
+        self.energia -= 20
+        self.velocidad += 10
+
+    def comer(self):
+        self.energia += 30
+
+    def dormir(self):
+        self.energia += 50
+
+class Rinoceronte(Organismo):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
+        self.velocidad = 15
+        self.vida = 150
+
+    def comer(self):
+        self.energia += 30
+
+    def dormir(self):
+        self.energia += 50
+
+class Tortuga(Organismo):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
+        self.velocidad = 5
+        self.vida = 100
+
+    def comer(self):
+        self.energia += 30
+
+    def dormir(self):
+        self.energia += 50
+        
 #####################################################################
 #                           AMBIENTE
 #####################################################################
@@ -207,6 +314,7 @@ class Ventana(tk.Tk):
         self.filas = filas
         self.columnas = columnas
         self.ancho_celda = ancho_celda
+        self.mapa_numerico = mapa_numerico
         
         # Configurar el sistema de registro para la ventana
         logging.basicConfig(filename='movimientos.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', encoding='utf-8')
@@ -238,10 +346,41 @@ class Ventana(tk.Tk):
         self.direccion_elefante = choice(["arriba", "abajo", "izquierda", "derecha"])
         self.direccion_tortuga = choice(["arriba", "abajo", "izquierda", "derecha"])
 
+        self.agua_image = Image.open("imagenes/agua.png")
+        self.tierra_image = Image.open("imagenes/tierra.png")
+        self.pasto_image = Image.open("imagenes/pasto.png")
+
+        self.agua_image = self.agua_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
+        self.tierra_image = self.tierra_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
+        self.pasto_image = self.pasto_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
+
+        # Convertir las imágenes de fondo a formato Tkinter
+        self.agua_image = ImageTk.PhotoImage(self.agua_image)
+        self.tierra_image = ImageTk.PhotoImage(self.tierra_image)
+        self.pasto_image = ImageTk.PhotoImage(self.pasto_image)
+
         self.crear_cuadricula()
+        self.crear_fondo()
         self.mostrar_animales()
         self.mover_animales()
 
+    def crear_fondo(self):
+            for fila in range(self.filas):
+                for columna in range(self.columnas):
+                    imagen_fondo = None
+                    if self.mapa_numerico[fila][columna] == 0:
+                        imagen_fondo = self.agua_image
+                    elif self.mapa_numerico[fila][columna] == 1:
+                        imagen_fondo = self.pasto_image
+                    elif self.mapa_numerico[fila][columna] == 2:
+                        imagen_fondo = self.tierra_image
+    
+                    if imagen_fondo:
+                        x_posicion = columna * self.ancho_celda
+                        y_posicion = fila * self.ancho_celda
+                        self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=imagen_fondo, tags="fondo")
+
+                        
     def crear_cuadricula(self):
         # Crear la cuadrícula una vez al inicio
         canvas = tk.Canvas(self, width=self.columnas * self.ancho_celda, height=self.filas * self.ancho_celda)
@@ -262,6 +401,7 @@ class Ventana(tk.Tk):
         self.canvas.delete("leon", "jirafa", "hiena", "gacela", "rinoceronte", "elefante", "tortuga")
 
         # Redimensionar imágenes de animales
+        
         self.lion_image = self.lion_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
         self.jirafa_image = self.jirafa_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
         self.hiena_image = self.hiena_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
@@ -336,6 +476,27 @@ class Ventana(tk.Tk):
         # Establecer un retardo y llamar a la función nuevamente
         self.after(300, self.mover_animales)
 
+        animales_en_posiciones = {
+            "leon": self.leon_posicion,
+            "jirafa": self.jirafa_posicion,
+            "hiena": self.hiena_posicion,
+            "gacela": self.gacela_posicion,
+            "rinoceronte": self.rinoceronte_posicion,
+            "elefante": self.elefante_posicion,
+            "tortuga": self.tortuga_posicion,
+        }
+
+        for atacante_tag, atacante_posicion in animales_en_posiciones.items():
+            for presa_tag, presa_posicion in animales_en_posiciones.items():
+                if atacante_tag != presa_tag:
+                    distancia = abs(atacante_posicion[0] - presa_posicion[0]) + abs(atacante_posicion[1] - presa_posicion[1])
+                    if distancia <= 1:
+                        # Los animales están dentro del campo de visión
+                        atacante = next(animal for animal in self.ambiente if animal.nombre == atacante_tag)
+                        presa = next(animal for animal in self.ambiente if animal.nombre == presa_tag)
+                        atacante.atacar(presa)
+
+
     def mover_animal_individual(self, tag, posicion, direccion):
         # Eliminar la instancia previa del animal
         self.canvas.delete(tag)
@@ -387,6 +548,33 @@ class Ventana(tk.Tk):
     def registrar_movimiento(self, animal, posicion):
         mensaje = f"{animal} se movió a la posición {posicion}"
         logging.info(mensaje)
+
+filas = 27
+columnas = 40
+
+# Generar el ruido de Simplex para el mapa de biomas
+biome_map = OpenSimplex(seed=random.randint(1, 10000))
+
+# Generar el ruido de Simplex para el mapa de biomas
+biome_noise = [[0 for _ in range(columnas)] for _ in range(filas)]
+
+scale = 20.0  # Ajusta esta escala para modificar el ruido
+for i in range(filas):
+    for j in range(columnas):
+        biome_noise[i][j] = biome_map.noise2(i / scale, j / scale)
+
+# Asignar biomas basados en el ruido de Simplex generado
+mapa_numerico = []
+for fila in biome_noise:
+    mapa_fila = []
+    for valor in fila:
+        if valor < -0.5:
+            mapa_fila.append(0)  # Azul
+        elif valor < 0.0:
+            mapa_fila.append(1)  # Verde
+        else:
+            mapa_fila.append(2)  # Café
+    mapa_numerico.append(mapa_fila)
 
 if __name__ == "__main__":
     ventana = Ventana(filas=27, columnas=40, ancho_celda=25)
