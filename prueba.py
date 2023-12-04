@@ -306,46 +306,27 @@ class Ecosistema:
 #####################################################################
 #                           MOTOR DE EVENTOS
 #####################################################################
-class Meteorito:
-    def __init__(self, ventana, area_impacto_x, area_impacto_y, radio_impacto, frecuencia_ciclos):
-        self.ventana = ventana
-        self.area_impacto_x = area_impacto_x
-        self.area_impacto_y = area_impacto_y
-        self.radio_impacto = radio_impacto
-        self.frecuencia_ciclos = frecuencia_ciclos
-        self.ciclos_transcurridos = 0
 
-    def activar(self):
-        if self.ciclos_transcurridos % self.frecuencia_ciclos == 0:
-            self.impacto()
 
-        self.ciclos_transcurridos += 1
 
-    def impacto(self):
-        # Área de impacto del meteorito
-        min_x = max(0, self.area_impacto_x - self.radio_impacto)
-        max_x = min(len(self.ventana.mapa_numerico), self.area_impacto_x + self.radio_impacto + 1)
-        min_y = max(0, self.area_impacto_y - self.radio_impacto)
-        max_y = min(len(self.ventana.mapa_numerico[0]), self.area_impacto_y + self.radio_impacto + 1)
 
-        # Acceder a la lista de organismos en el simulador
-        organismos = self.ventana.ambiente.organismos
 
-        # Eliminar animales dentro del área de impacto
-        for animal in organismos:
-            if min_x <= animal.ubicacion[0] < max_x and min_y <= animal.ubicacion[1] < max_y:
-                # Eliminar el animal del ecosistema
-                self.ventana.ambiente.organismos.remove(animal)
 
-        # Actualización del entorno después del impacto
-        self.ventana.crear_fondo()
-        self.ventana.mostrar_animales()
-        pass
 
+
+
+
+
+
+
+
+"""
+#####################################################################
     
 #####################################################################
 #                           VENTANA
 #####################################################################
+"""
 
 class Ventana(tk.Tk):
     def __init__(self, filas, columnas, ancho_celda, *args, **kwargs):
@@ -366,6 +347,13 @@ class Ventana(tk.Tk):
         self.rinoceronte_image = Image.open("imagenes/rinoceronte.png")
         self.elefante_image = Image.open("imagenes/elefante.png")
         self.tortuga_image = Image.open("imagenes/tortuga.png")
+
+        #meteorito
+        self.meteoritos = Image.open("imagenes/meteorito1.png")
+        self.meteoritos = Image.open("imagenes/meteorito2.png")
+
+        boton_meteorito = tk.Button(self, text="Generar Meteorito", command=self.generar_meteorito)
+        boton_meteorito.pack()
 
         # Posiciones iniciales de los animales
         self.hiena_posicion = [4, 2]
@@ -402,16 +390,48 @@ class Ventana(tk.Tk):
         self.crear_fondo()
         self.mostrar_animales()
         self.mover_animales()
-
-        self.boton_meteorito = tk.Button(self, text="Activar Meteorito", command=self.activar_meteorito)
-        self.boton_meteorito.pack()
+        self.generar_meteorito()
 
 
-    def activar_meteorito(self):
-        # Crear una instancia del meteorito y activar el impacto
-        meteorito = Meteorito(self, area_impacto_x=10, area_impacto_y=10, radio_impacto=3, frecuencia_ciclos=1000)
-        meteorito.impacto()
-    
+
+
+    def generar_meteorito(self):
+    # Llamar a la función para generar un meteorito
+        fila_meteorito, columna_meteorito = self.generar_posicion_meteorito(self.filas, self.columnas, 0.01)
+
+        # Si se generó un meteorito (la función no devolvió None)
+        if fila_meteorito is not None and columna_meteorito is not None:
+            # Mostrar un mensaje de notificación
+            mensaje = f"Se ha generado un meteorito en la posición ({fila_meteorito}, {columna_meteorito})"
+            logging.info(mensaje)
+
+            # Obtener la posición del animal que se encuentra en la posición del meteorito
+            animal_posicion = self.mapa_numerico[fila_meteorito][columna_meteorito]
+
+            # Si existe un animal en la posición
+            if animal_posicion != 0:
+                # Eliminar el animal de la posición
+                self.mapa_numerico[fila_meteorito][columna_meteorito] = 0
+
+                # Obtener el objeto del animal
+                animal = self.animales[animal_posicion]
+
+                # Eliminar el animal de la lista de animales
+                del self.animales[animal_posicion]
+
+                # Mostrar un mensaje de notificación
+                mensaje = f"El animal {animal.nombre} ha sido eliminado por un meteorito"
+                logging.info(mensaje)
+
+            # Cambiar el valor en el mapa numérico para representar el meteorito
+            self.mapa_numerico[fila_meteorito][columna_meteorito] = 4  # Asumiendo que 4 representa un meteorito
+
+            # Crear la imagen del meteorito en la posición correcta
+            x_posicion = columna_meteorito * self.ancho_celda
+        y_posicion = fila_meteorito * self.ancho_celda
+        self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=self.meteorito_image, tags="meteorito")
+
+
     def crear_fondo(self):
             for fila in range(self.filas):
                 for columna in range(self.columnas):
@@ -626,5 +646,6 @@ for fila in biome_noise:
 
 if __name__ == "__main__":
     ventana = Ventana(filas=27, columnas=40, ancho_celda=25)
+
     ventana.mainloop()
 
