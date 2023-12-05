@@ -161,8 +161,144 @@ class Leon(Depredador):
     
     def dormir(self):
         self.energia += 50
+        
+        
+
+class Hiena(Organismo):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
+        self.velocidad = 20
+        self.vida = 100
+
+    def cazar(self):
+        self.energia -= 20
+        self.velocidad += 8
+
+    def comer(self):
+        self.energia += 30
+
+    def dormir(self):
+        self.energia += 50   
+#####################################################################
+#                           PRESA
+#####################################################################
+class Presa(Animal):
+    def __init__(self, nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida):
+        super().__init__(nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida)
+
+    def huir(self, depredadores):
+        depredador = self.buscar_depredador(depredadores)
+        self.moverse(depredador)
+
+    def huir(self, depredadores):
+        depredador = self.buscar_depredador(depredadores)
+        self.moverse(depredador)    
+
+    def ciclo_vida(self):
+        self.vida -= 1
+        self.energia -= 1
+
+class Jirafa(Presa):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
+        self.velocidad = 18
+
+    def huir(self):
+        self.energia -= 20
+        self.velocidad += 10
+
+    def comer(self):
+        self.energia += 30
+
+    def dormir(self):
+        self.energia += 50
+
+class Gacela(Presa):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
+        self.velocidad = 15
+        self.vida = 100
+
+    def huir(self):
+        self.energia -= 20
+        self.velocidad += 10
+
+    def comer(self):
+        self.energia += 30
+
+    def dormir(self):
+        self.energia += 50
+
+class Rinoceronte(Organismo):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
+        self.velocidad = 15
+        self.vida = 150
+
+    def comer(self):
+        self.energia += 30
+
+    def dormir(self):
+        self.energia += 50
+
+class Tortuga(Organismo):
+    def __init__(self, posicion, nombre="", especie="", dieta=""):
+        super().__init__(posicion, nombre=nombre, especie=especie, dieta=dieta)
+        self.velocidad = 5
+        self.vida = 100
+
+    def comer(self):
+        self.energia += 30
+
+    def dormir(self):
+        self.energia += 50
+        
+#####################################################################
+#                           AMBIENTE
+#####################################################################
+class Ambiente:
+    def __init__(self):
+        self.eventos_aleatorios = []
+
+    def agregar_evento_aleatorio(self, evento):
+        self.eventos_aleatorios.append(evento)
+
+    def ejecutar_eventos_aleatorios(self):
+        for evento in self.eventos_aleatorios:
+            evento()
+
+#####################################################################
+#                           SAVANA
+#####################################################################
+class SavanaAfricana:
+    def __init__(self, temperatura, estacion_seca, estacion_lluvia, vegetacion, fauna):
+        self.temperatura = temperatura
+        self.estacion_seca = estacion_seca
+        self.estacion_lluvia = estacion_lluvia
+        self.vegetacion = vegetacion
+        self.fauna = fauna
+
+    def ciclo_estacional(self):
+        pass
+
+    def agregar_planta(self, planta):
+        pass
+
+    def agregar_animal(self, animal):
+        pass
 
 
+
+#####################################################################
+#                           ECOSISTEMAS
+#####################################################################
+class Ecosistema:
+    def __init__(self):
+        self.organismos = []
+        self.ambiente = []
+
+    def ciclo_global(self):
+        pass
 
 
 """
