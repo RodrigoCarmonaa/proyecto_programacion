@@ -1,7 +1,7 @@
 from opensimplex import OpenSimplex
 import tkinter as tk
 from PIL import Image, ImageTk
-from random import choice
+from random import choice, randint
 import random
 import logging
 # -*- coding: utf-8 -*-
@@ -130,10 +130,14 @@ class Animal(Organismo):
             self.energia += charco.agua
             self.sed = max(0, self.sed - charco.agua)
 
-    def reproducirse(self):
-        nuevo_animal = Animal(f"NuevoAnimal_{choice(1, 100)}", self.especie, self.ubicacion, vida=1, energia=1, velocidad=1, hambre=1, sed=1)
-        return nuevo_animal
-
+    def reproducirse(self, animales):
+            companero = self.buscar_companero(animales)
+            if companero:
+                probabilidad = randint(1, 10)
+                if probabilidad == 3:
+                    nueva_cria = Animal(f"NuevoAnimal_{randint(1, 10)}", self.especie, self.ubicacion, vida=1, energia=1, velocidad=1, hambre=1, sed=1)
+                    return nueva_cria
+            return None
 
 #####################################################################
 #                           DEPREDADOR
@@ -165,6 +169,16 @@ class Leon(Depredador):
     def comer(self):
         self.energia += 30
 
+    def reproducirse(self, animales):
+        # Implementación específica de reproducción para los leones
+        compañero = self.buscar_companero(animales)
+        if compañero:
+            probabilidad = randint(1, 10)
+            if probabilidad == 3:
+                nueva_cria = Leon(f"NuevoLeon_{randint(1, 10)}", self.especie, self.ubicacion, vida=1, energia=1, hambre=1, sed=1)
+                return nueva_cria
+        return None    
+    
     def dormir(self):
         self.energia += 50
 
@@ -348,21 +362,17 @@ class Ventana(tk.Tk):
         self.elefante_image = Image.open("imagenes/elefante.png")
         self.tortuga_image = Image.open("imagenes/tortuga.png")
 
-        #meteorito
-        self.meteoritos = Image.open("imagenes/meteorito1.png")
-        self.meteoritos = Image.open("imagenes/meteorito2.png")
 
-        boton_meteorito = tk.Button(self, text="Generar Meteorito", command=self.generar_meteorito)
-        boton_meteorito.pack()
 
         # Posiciones iniciales de los animales
         self.hiena_posicion = [4, 2]
         self.jirafa_posicion = [3, 5]
-        self.leon_posicion = [5, 8]
+        self.leon_posicion = [20, 20]
         self.gacela_posicion = [1, 1]
         self.rinoceronte_posicion = [8, 15]
         self.elefante_posicion = [12, 20]
         self.tortuga_posicion = [15, 25]
+        self.leon2_posicion = [21, 20]
 
         # Direcciones iniciales de los animales
         self.direccion_leon = choice(["arriba", "abajo", "izquierda", "derecha"])
@@ -372,6 +382,9 @@ class Ventana(tk.Tk):
         self.direccion_rinoceronte = choice(["arriba", "abajo", "izquierda", "derecha"])
         self.direccion_elefante = choice(["arriba", "abajo", "izquierda", "derecha"])
         self.direccion_tortuga = choice(["arriba", "abajo", "izquierda", "derecha"])
+        self.direccion_leon2 = choice(["arriba", "abajo", "izquierda", "derecha"])
+
+
 
         self.agua_image = Image.open("imagenes/agua.png")
         self.tierra_image = Image.open("imagenes/tierra.png")
@@ -390,46 +403,8 @@ class Ventana(tk.Tk):
         self.crear_fondo()
         self.mostrar_animales()
         self.mover_animales()
-        self.generar_meteorito()
 
 
-
-
-    def generar_meteorito(self):
-    # Llamar a la función para generar un meteorito
-        fila_meteorito, columna_meteorito = self.generar_posicion_meteorito(self.filas, self.columnas, 0.01)
-
-        # Si se generó un meteorito (la función no devolvió None)
-        if fila_meteorito is not None and columna_meteorito is not None:
-            # Mostrar un mensaje de notificación
-            mensaje = f"Se ha generado un meteorito en la posición ({fila_meteorito}, {columna_meteorito})"
-            logging.info(mensaje)
-
-            # Obtener la posición del animal que se encuentra en la posición del meteorito
-            animal_posicion = self.mapa_numerico[fila_meteorito][columna_meteorito]
-
-            # Si existe un animal en la posición
-            if animal_posicion != 0:
-                # Eliminar el animal de la posición
-                self.mapa_numerico[fila_meteorito][columna_meteorito] = 0
-
-                # Obtener el objeto del animal
-                animal = self.animales[animal_posicion]
-
-                # Eliminar el animal de la lista de animales
-                del self.animales[animal_posicion]
-
-                # Mostrar un mensaje de notificación
-                mensaje = f"El animal {animal.nombre} ha sido eliminado por un meteorito"
-                logging.info(mensaje)
-
-            # Cambiar el valor en el mapa numérico para representar el meteorito
-            self.mapa_numerico[fila_meteorito][columna_meteorito] = 4  # Asumiendo que 4 representa un meteorito
-
-            # Crear la imagen del meteorito en la posición correcta
-            x_posicion = columna_meteorito * self.ancho_celda
-        y_posicion = fila_meteorito * self.ancho_celda
-        self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=self.meteorito_image, tags="meteorito")
 
 
     def crear_fondo(self):
@@ -466,7 +441,7 @@ class Ventana(tk.Tk):
 
     def mostrar_animales(self):
         # Eliminar cualquier instancia previa de los animales
-        self.canvas.delete("leon", "jirafa", "hiena", "gacela", "rinoceronte", "elefante", "tortuga")
+        self.canvas.delete("leon", "jirafa", "hiena", "gacela", "rinoceronte", "elefante", "tortuga","leon2")
 
         # Redimensionar imágenes de animales
         
@@ -477,6 +452,9 @@ class Ventana(tk.Tk):
         self.rinoceronte_image = self.rinoceronte_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
         self.elefante_image = self.elefante_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
         self.tortuga_image = self.tortuga_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
+
+
+
 
         # Convertir imágenes a formato Tkinter
         self.lion_image = ImageTk.PhotoImage(self.lion_image)
@@ -490,6 +468,7 @@ class Ventana(tk.Tk):
         # Posiciones de los animales
         posiciones = {
             "leon": self.leon_posicion,
+            "leon2": self.leon2_posicion,
             "jirafa": self.jirafa_posicion,
             "hiena": self.hiena_posicion,
             "gacela": self.gacela_posicion,
@@ -500,6 +479,7 @@ class Ventana(tk.Tk):
 
         # Imágenes de los animales
         imagenes = {
+            "leon2":self.lion_image,
             "leon": self.lion_image,
             "jirafa": self.jirafa_image,
             "hiena": self.hiena_image,
@@ -540,6 +520,9 @@ class Ventana(tk.Tk):
         
         self.tortuga_posicion = self.mover_animal_individual("tortuga", self.tortuga_posicion, self.direccion_tortuga)
         self.registrar_movimiento("tortuga", self.tortuga_posicion)
+
+        self.leon2_posicion = self.mover_animal_individual("leon2", self.leon2_posicion, self.direccion_leon2)
+        self.registrar_movimiento("leon2", self.leon2_posicion)
 
         # Establecer un retardo y llamar a la función nuevamente
         self.after(300, self.mover_animales)
@@ -609,6 +592,9 @@ class Ventana(tk.Tk):
         elif tag == "tortuga":
             image = self.tortuga_image
             self.direccion_tortuga = choice(["arriba", "abajo", "izquierda", "derecha"])
+        elif tag == "leon2":
+            image = self.lion_image
+            self.direccion_leon2 = choice(["arriba", "abajo", "izquierda", "derecha"])    
 
         self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=image, tags=tag)
         return posicion
