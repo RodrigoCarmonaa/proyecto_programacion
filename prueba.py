@@ -353,11 +353,33 @@ class Ventana(tk.Tk):
         self.filas = filas
         self.columnas = columnas
         self.ancho_celda = ancho_celda
-        self.mapa_numerico = mapa_numerico
+        self.posicion_original_cuadricula = (0, 0)
         
+        biome_map = OpenSimplex(seed=random.randint(1, 10000))
+        biome_noise = [[0 for _ in range(columnas)] for _ in range(filas)]
+
+        scale = 20.0  # Ajusta esta escala para modificar el ruido
+        for i in range(filas):
+            for j in range(columnas):
+                biome_noise[i][j] = biome_map.noise2(i / scale, j / scale)
+
+        # Asignar biomas basados en el ruido de Simplex generado
+        self.mapa_numerico = []
+        for fila in biome_noise:
+            mapa_fila = []
+            for valor in fila:
+                if valor < -0.5:
+                    mapa_fila.append(0)  # Azul
+                elif valor < 0.0:
+                    mapa_fila.append(1)  # Verde
+                else:
+                    mapa_fila.append(2)  # Café
+            self.mapa_numerico.append(mapa_fila)
+
 
         self.boton_terremoto = tk.Button(self, text="Simular Terremoto", command=self.simular_terremoto)
         self.boton_terremoto.pack(side=tk.RIGHT)
+    
         
         # Configurar el sistema de registro para la ventana
         logging.basicConfig(filename='movimientos.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', encoding='utf-8')
@@ -403,27 +425,64 @@ class Ventana(tk.Tk):
         self.pasto_image = ImageTk.PhotoImage(self.pasto_image)
 
         self.crear_cuadricula()
-        self.posicion_original_cuadricula = self.obtener_posicion_cuadricula()
+        self.posicion_original_mapa = self.obtener_posicion_cuadricula()
         self.crear_fondo()
         self.mostrar_animales()
         self.mover_animales()
-        
         self.posicion_original_mapa = self.canvas.coords(self.posicion_original_cuadricula)
 
 
-        
+    
+
+
     def simular_terremoto(self):
-     # Almacena la posición original de la cuadrícula y los animales
-        posicion_original_cuadricula = self.obtener_posicion_cuadricula()
-        posiciones_originales_animales = self.obtener_posiciones_originales_animales()
-
+        # Almacena la posición original de la cuadrícula y del mapa
+        self.posicion_original_cuadricula = self.obtener_posicion_cuadricula()
+        self.posicion_original_mapa = self.canvas.canvasx(0), self.canvas.canvasy(0)
         # Simula el terremoto
-        self.realizar_movimiento_terremoto(5)
+        self.realizar_movimiento_terremoto(10)
+        self.restablecer_posicion_mapa()
 
-        # Restaura la posición original de la cuadrícula y los animales al final del terremoto
-        self.canvas.coords("all", *posicion_original_cuadricula)
-        self.restaurar_posiciones_originales_animales(posiciones_originales_animales)
-        self.update()
+
+    def restablecer_posicion_mapa(self):
+        # Restaura las posiciones originales de la cuadrícula
+        x_actual, y_actual = self.obtener_posicion_cuadricula()
+        delta_x_cuadricula = 0 - x_actual
+        delta_y_cuadricula = 0 - y_actual
+        self.canvas.move("all", delta_x_cuadricula, delta_y_cuadricula)
+
+        # Restaura las posiciones originales del mapa
+        delta_x_mapa = 0 - x_actual
+        delta_y_mapa = 0 - y_actual
+        self.canvas.move("fondo", delta_x_mapa, delta_y_mapa)  # Mueve solo el fondo (etiqueta "fondo")
+
+        # Establece la posición original de la cuadrícula
+        self.canvas.coords("all", 0, 0, self.columnas * self.ancho_celda, self.filas * self.ancho_celda)
+
+        # Restaura las posiciones originales de las líneas de la cuadrícula
+        for id_linea_horizontal, y in zip(self.ids_lineas_horizontales, range(self.ancho_celda, self.filas * self.ancho_celda, self.ancho_celda)):
+            self.canvas.coords(id_linea_horizontal, 0, y, self.columnas * self.ancho_celda, y)
+
+        for id_linea_vertical, x in zip(self.ids_lineas_verticales, range(self.ancho_celda, self.columnas * self.ancho_celda, self.ancho_celda)):
+            self.canvas.coords(id_linea_vertical, x, 0, x, self.filas * self.ancho_celda)
+
+        for fila in range(self.filas):
+            for columna in range(self.columnas):
+                imagen_fondo = None
+                if self.mapa_numerico[fila][columna] == 0:
+                    imagen_fondo = self.agua_image
+                elif self.mapa_numerico[fila][columna] == 1:
+                    imagen_fondo = self.pasto_image
+                elif self.mapa_numerico[fila][columna] == 2:
+                    imagen_fondo = self.tierra_image
+
+                if imagen_fondo:
+                    x_posicion = columna * self.ancho_celda
+                    y_posicion = fila * self.ancho_celda
+                    self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=imagen_fondo, tags="fondo")
+
+
+     
 
     def obtener_posiciones_originales_animales(self):
         # Obtén las coordenadas originales de todos los animales
@@ -438,14 +497,17 @@ class Ventana(tk.Tk):
         }
         return posiciones_originales
     
-    def restaurar_posiciones_originales_animales(self, posiciones_originales):
-        # Restaura las posiciones originales de todos los animales
-        for tag, posicion_original in posiciones_originales.items():
-            self.canvas.coords(tag, posicion_original[0] * self.ancho_celda, posicion_original[1] * self.ancho_celda)
+    def restaurar_posiciones_originales(self):
+        # Restaura las posiciones originales de la cuadrícula
+        x_actual, y_actual = self.obtener_posicion_cuadricula()
+        delta_x_cuadricula = self.posicion_original_cuadricula[0] - x_actual
+        delta_y_cuadricula = self.posicion_original_cuadricula[1] - y_actual
+        self.canvas.move("all", delta_x_cuadricula, delta_y_cuadricula)
 
-
-    def simular_terremoto(self):
-        self.realizar_movimiento_terremoto(5)  # Ajusta la cantidad de movimientos durante el terremoto
+        # Restaura las posiciones originales del mapa
+        delta_x_mapa = self.posicion_original_mapa[0] - x_actual
+        delta_y_mapa = self.posicion_original_mapa[1] - y_actual
+        self.canvas.move("all", delta_x_mapa, delta_y_mapa)
 
     def realizar_movimiento_terremoto(self, contador):
         if contador > 0:
@@ -489,29 +551,37 @@ class Ventana(tk.Tk):
 
                         
     def crear_cuadricula(self):
-        # Crear la cuadrícula una vez al inicio
+    # Crear la cuadrícula una vez al inicio
         self.canvas = tk.Canvas(self, width=self.columnas * self.ancho_celda, height=self.filas * self.ancho_celda)
         self.canvas.pack()
-        self.posicion_original_cuadricula = self.obtener_posicion_cuadricula()
+
+        # Listas para almacenar los IDs de las líneas horizontales y verticales
+        self.ids_lineas_horizontales = []
+        self.ids_lineas_verticales = []
+
         for i in range(1, self.filas):
             y = i * self.ancho_celda
-            self.canvas.create_line(0, y, self.columnas * self.ancho_celda, y)
+            id_linea_horizontal = self.canvas.create_line(0, y, self.columnas * self.ancho_celda, y)
+            self.ids_lineas_horizontales.append(id_linea_horizontal)
 
         for j in range(1, self.columnas):
             x = j * self.ancho_celda
-            self.canvas.create_line(x, 0, x, self.filas * self.ancho_celda) # Guardar una referencia al canvas para su uso posterior
+            id_linea_vertical = self.canvas.create_line(x, 0, x, self.filas * self.ancho_celda)
+            self.ids_lineas_verticales.append(id_linea_vertical)
 
+        # Guardar una referencia al canvas para su uso posterior
+        self.posicion_original_cuadricula = self.obtener_posicion_cuadricula() # Guardar una referencia al canvas para su uso posterior
+        
     def obtener_posicion_cuadricula(self):
-        # Obtener las coordenadas iniciales de la cuadrícula
+        # Obtener las coordenadas actuales de la cuadrícula
         x_actual = self.canvas.canvasx(0)
         y_actual = self.canvas.canvasy(0)
-        self.canvas.move("all", self.posicion_original_cuadricula[0] - x_actual, self.posicion_original_cuadricula[1] - y_actual)
 
-    # Actualizar la posición original
+        # Actualizar la posición original
         self.posicion_original_cuadricula = self.canvas.canvasx(0), self.canvas.canvasy(0)
-    
+
         return x_actual, y_actual
-    
+
     def mostrar_animales(self):
         # Eliminar cualquier instancia previa de los animales
         self.canvas.delete("leon", "jirafa", "hiena", "gacela", "rinoceronte", "elefante", "tortuga")
@@ -602,16 +672,6 @@ class Ventana(tk.Tk):
             "tortuga": self.tortuga_posicion,
         }
 
-        for atacante_tag, atacante_posicion in animales_en_posiciones.items():
-            for presa_tag, presa_posicion in animales_en_posiciones.items():
-                if atacante_tag != presa_tag:
-                    distancia = abs(atacante_posicion[0] - presa_posicion[0]) + abs(atacante_posicion[1] - presa_posicion[1])
-                    if distancia <= 1:
-                        # Los animales están dentro del campo de visión
-                        atacante = next(animal for animal in self.ambiente if animal.nombre == atacante_tag)
-                        presa = next(animal for animal in self.ambiente if animal.nombre == presa_tag)
-                        atacante.atacar(presa)
-
 
     def mover_animal_individual(self, tag, posicion, direccion):
         # Eliminar la instancia previa del animal
@@ -665,33 +725,6 @@ class Ventana(tk.Tk):
         mensaje = f"{animal} se movió a la posición {posicion}"
         logging.info(mensaje)
 
-filas = 27
-columnas = 40
-
-# Generar el ruido de Simplex para el mapa de biomas
-biome_map = OpenSimplex(seed=random.randint(1, 10000))
-
-# Generar el ruido de Simplex para el mapa de biomas
-biome_noise = [[0 for _ in range(columnas)] for _ in range(filas)]
-
-scale = 20.0  # Ajusta esta escala para modificar el ruido
-for i in range(filas):
-    for j in range(columnas):
-        biome_noise[i][j] = biome_map.noise2(i / scale, j / scale)
-
-# Asignar biomas basados en el ruido de Simplex generado
-mapa_numerico = []
-for fila in biome_noise:
-    mapa_fila = []
-    for valor in fila:
-        if valor < -0.5:
-            mapa_fila.append(0)  # Azul
-        elif valor < 0.0:
-            mapa_fila.append(1)  # Verde
-        else:
-            mapa_fila.append(2)  # Café
-    mapa_numerico.append(mapa_fila)
-
 if __name__ == "__main__":
-    ventana = Ventana(filas=27, columnas=40, ancho_celda=25)
+    ventana = Ventana(filas=40, columnas=80, ancho_celda=25)
     ventana.mainloop()
