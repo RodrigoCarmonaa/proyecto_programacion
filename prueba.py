@@ -355,6 +355,10 @@ class Ventana(tk.Tk):
         self.ancho_celda = ancho_celda
         self.mapa_numerico = mapa_numerico
         
+
+        self.boton_terremoto = tk.Button(self, text="Simular Terremoto", command=self.simular_terremoto)
+        self.boton_terremoto.pack(side=tk.RIGHT)
+        
         # Configurar el sistema de registro para la ventana
         logging.basicConfig(filename='movimientos.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', encoding='utf-8')
 
@@ -399,18 +403,73 @@ class Ventana(tk.Tk):
         self.pasto_image = ImageTk.PhotoImage(self.pasto_image)
 
         self.crear_cuadricula()
+        self.posicion_original_cuadricula = self.obtener_posicion_cuadricula()
         self.crear_fondo()
         self.mostrar_animales()
         self.mover_animales()
+        
+        self.posicion_original_mapa = self.canvas.coords(self.posicion_original_cuadricula)
 
-        self.boton_meteorito = tk.Button(self, text="Activar Meteorito", command=self.activar_meteorito)
-        self.boton_meteorito.pack()
+
+        
+    def simular_terremoto(self):
+     # Almacena la posición original de la cuadrícula y los animales
+        posicion_original_cuadricula = self.obtener_posicion_cuadricula()
+        posiciones_originales_animales = self.obtener_posiciones_originales_animales()
+
+        # Simula el terremoto
+        self.realizar_movimiento_terremoto(5)
+
+        # Restaura la posición original de la cuadrícula y los animales al final del terremoto
+        self.canvas.coords("all", *posicion_original_cuadricula)
+        self.restaurar_posiciones_originales_animales(posiciones_originales_animales)
+        self.update()
+
+    def obtener_posiciones_originales_animales(self):
+        # Obtén las coordenadas originales de todos los animales
+        posiciones_originales = {
+            "leon": self.leon_posicion.copy(),
+            "jirafa": self.jirafa_posicion.copy(),
+            "hiena": self.hiena_posicion.copy(),
+            "gacela": self.gacela_posicion.copy(),
+            "rinoceronte": self.rinoceronte_posicion.copy(),
+            "elefante": self.elefante_posicion.copy(),
+            "tortuga": self.tortuga_posicion.copy(),
+        }
+        return posiciones_originales
+    
+    def restaurar_posiciones_originales_animales(self, posiciones_originales):
+        # Restaura las posiciones originales de todos los animales
+        for tag, posicion_original in posiciones_originales.items():
+            self.canvas.coords(tag, posicion_original[0] * self.ancho_celda, posicion_original[1] * self.ancho_celda)
 
 
-    def activar_meteorito(self):
-        # Crear una instancia del meteorito y activar el impacto
-        meteorito = Meteorito(self, area_impacto_x=10, area_impacto_y=10, radio_impacto=3, frecuencia_ciclos=1000)
-        meteorito.impacto()
+    def simular_terremoto(self):
+        self.realizar_movimiento_terremoto(5)  # Ajusta la cantidad de movimientos durante el terremoto
+
+    def realizar_movimiento_terremoto(self, contador):
+        if contador > 0:
+            self.mover_pantalla()
+            self.canvas.lift("all")
+            self.update()  # Actualiza la ventana para que se reflejen los cambios
+            self.after(100, self.realizar_movimiento_terremoto, contador - 1)  # Programa la siguiente llamada después de 100 ms
+
+    def mover_pantalla(self):
+        delta_x = random.randint(-1, 1)  # Ajusta el rango de movimiento en el eje x
+        delta_y = random.randint(-1, 1)  # Ajusta el rango de movimiento en el eje y
+
+         # Obtén las coordenadas actuales del área visible del mapa
+        x_inicio, y_inicio = self.canvas.canvasx(0), self.canvas.canvasy(0)
+        x_fin, y_fin = self.canvas.canvasx(self.winfo_width()), self.canvas.canvasy(self.winfo_height())
+
+        if x_inicio + delta_x * self.ancho_celda >= 0 and x_fin + delta_x * self.ancho_celda <= self.canvas.winfo_width():
+            self.canvas.move("all", delta_x * self.ancho_celda, 0)
+
+        if y_inicio + delta_y * self.ancho_celda >= 0 and y_fin + delta_y * self.ancho_celda <= self.canvas.winfo_height():
+            self.canvas.move("all", 0, delta_y * self.ancho_celda)
+
+        # Mueve todos los elementos en el lienzo
+        self.canvas.move("all", delta_x * self.ancho_celda, delta_y * self.ancho_celda)
     
     def crear_fondo(self):
             for fila in range(self.filas):
@@ -431,19 +490,28 @@ class Ventana(tk.Tk):
                         
     def crear_cuadricula(self):
         # Crear la cuadrícula una vez al inicio
-        canvas = tk.Canvas(self, width=self.columnas * self.ancho_celda, height=self.filas * self.ancho_celda)
-        canvas.pack()
-
+        self.canvas = tk.Canvas(self, width=self.columnas * self.ancho_celda, height=self.filas * self.ancho_celda)
+        self.canvas.pack()
+        self.posicion_original_cuadricula = self.obtener_posicion_cuadricula()
         for i in range(1, self.filas):
             y = i * self.ancho_celda
-            canvas.create_line(0, y, self.columnas * self.ancho_celda, y)
+            self.canvas.create_line(0, y, self.columnas * self.ancho_celda, y)
 
         for j in range(1, self.columnas):
             x = j * self.ancho_celda
-            canvas.create_line(x, 0, x, self.filas * self.ancho_celda)
+            self.canvas.create_line(x, 0, x, self.filas * self.ancho_celda) # Guardar una referencia al canvas para su uso posterior
 
-        self.canvas = canvas  # Guardar una referencia al canvas para su uso posterior
+    def obtener_posicion_cuadricula(self):
+        # Obtener las coordenadas iniciales de la cuadrícula
+        x_actual = self.canvas.canvasx(0)
+        y_actual = self.canvas.canvasy(0)
+        self.canvas.move("all", self.posicion_original_cuadricula[0] - x_actual, self.posicion_original_cuadricula[1] - y_actual)
 
+    # Actualizar la posición original
+        self.posicion_original_cuadricula = self.canvas.canvasx(0), self.canvas.canvasy(0)
+    
+        return x_actual, y_actual
+    
     def mostrar_animales(self):
         # Eliminar cualquier instancia previa de los animales
         self.canvas.delete("leon", "jirafa", "hiena", "gacela", "rinoceronte", "elefante", "tortuga")
@@ -627,4 +695,3 @@ for fila in biome_noise:
 if __name__ == "__main__":
     ventana = Ventana(filas=27, columnas=40, ancho_celda=25)
     ventana.mainloop()
-
