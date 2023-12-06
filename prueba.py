@@ -304,7 +304,7 @@ class Ecosistema(tk.Tk):
         
         
 #----------------------------------------------------------
-# Intefaz interactiva para el usuario, colocar en una funcion y luego llamarla
+# Intefaz interactiva para el usuario
 #---------------------------------------------------------
         frame = tk.Frame(master=self, width=250, height=200, bg="#171717")
         frame.place(x=930,y=40)
@@ -317,8 +317,10 @@ class Ecosistema(tk.Tk):
         Evento: {"Ninguno"}'''
         label = tk.Label(master=frame, text=mensaje,fg="#E6E6E6" , bg="#1A1A1A",justify="left")
         label.place(x=0,y=30)
+
         frame1 = tk.Frame(master=self, width=200, height=675, bg="black")
         frame1.place(x=940, y = 300)
+
         boton_meteorito = tk.Button(frame1, text="Generar Meteorito", command=self.generar_meteorito)
         boton_terremoto = tk.Button(frame1, text="Generar Terremoto", command=self.simular_terremoto) 
         boton_Estado = tk.Button(frame1, text="volver a la normalidad", command=self.resetear)  
@@ -327,6 +329,7 @@ class Ecosistema(tk.Tk):
         boton_terremoto.place(x=35,y=50,width="150")  
         boton_meteorito.place(x=35,y=100,width="150")   
         boton_Otro_evento.place(x=35,y=150,width="150")  
+
 #--------------------------------------------------
 # Animal: 
 #-------------------------------------------------
@@ -368,8 +371,11 @@ class Ecosistema(tk.Tk):
             "animal10": self.Leon777,
          }
 
+
+    
     def resetear (self):
         self.restablecer_posicion_mapa()
+
     def animales (self):
         if not self.proceso_diluvio:
             self.instancia()
