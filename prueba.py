@@ -113,7 +113,7 @@ class Animal(Organismo):
         return posicion
         
     def Morir(self,Tipo_de_muerte,Imagen = None):
-        print(f"El {self.nombre} ha muerto,{Tipo_de_muerte}")
+        logging.info(f"El {self.nombre} ha muerto")
         self.estado = "muerto"
         if Imagen != None:
             return
@@ -126,10 +126,10 @@ class Animal(Organismo):
         if self.nivel_hambre >= 100:
             self.nivel_hambre = 100
             # MENSAJE LOG : ANIMAL LLENO
-        print('comiedo')
+        logging.info(f"El {self.nombre} ha comido")
     def Daño(self):
         self.vida -= 60    
-        print('Recibio daño')   
+        logging.info(f"El {self.nombre} ha recibido daño") 
 class Leon(Animal):
     def rugir(self):
         logging.info(f"El {self.nombre} ha rugido")
@@ -691,7 +691,6 @@ class Ecosistema(tk.Tk):
                 if Animal_encontrado.especie == "Hervivoro" and Depredador.especie == "Carnivoro" :
                     Depredador.Comer()
                     Animal_encontrado.Daño()
-                    print(Depredador.nombre,'ha atacado a ',Animal_encontrado.nombre)
                     if Animal_encontrado.vida <= 0:
                         self.Prueba_muerte(Animal_encontrado,"Comido")
 
