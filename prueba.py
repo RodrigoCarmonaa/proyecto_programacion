@@ -26,60 +26,72 @@ class Organismo:
 #                           PLANTA
 #####################################################################
 class Planta(Organismo):
-    def __init__(self, nombre, tipo, ubicacion, vida, energia, velocidad, ciclo_vida, tiempo_sin_agua):
+    def __init__(self, nombre, tipo, ubicacion, vida, energia, velocidad, ciclo_vida, tiempo_sin_agua,Imagen_Planta):
         super().__init__(nombre, ubicacion, vida, energia, velocidad)
         self.tipo = tipo
         self.ciclo_vida = ciclo_vida
         self.tiempo_sin_agua = tiempo_sin_agua
+        self.Image_Planta = Imagen_Planta
+        self.canvas = self.Prueba()
+    
+    def Prueba(self,canva=None):
+        self.canvas = canva
 
-    def crecer(self, cantidad_agua):
-        factor_crecimiento = cantidad_agua / self.tiempo_sin_agua
-        self.vida += factor_crecimiento
-        self.energia += factor_crecimiento
+    def mostrar_imagen(self):
+        self.canvas.create_image(self.ubicacion[0],self.ubicacion[1], anchor=tk.NW, image=self.Image_Planta, tags=self.nombre)
 
-    def morir(self):
-        self.vida = max(0, self.vida - 1)
-        self.energia = max(0, self.energia - 1)
 
-    def ser_consumida(self):
-        if self.vida > 0:
-            self.vida -= 1
-            self.energia -= 1
 
-    def actualizar_estado(self, cantidad_agua):
-        self.crecer(cantidad_agua)
-        self.morir()
-
-    def reproducirse(self):
-        nueva_planta = Planta(f"NuevaPlanta_{choice(1, 100)}", self.tipo, self.ubicacion, vida=1, energia=1, velocidad=1, ciclo_vida=self.ciclo_vida, tiempo_sin_agua=self.tiempo_sin_agua)
-        return nueva_planta
+class Arbol_Verde(Planta): # Manzano
+    # Lista_Bloque_vivo = []
+    def Area_asignada(self):
+        pass
+class Arbol_Rojo(Planta):
+    def Area_asignada(self):
+        pass
+class Arbusto(Planta):
+    def Area_asignada(self):
+        pass
+class Helechon(Planta):
+    def Area_asignada(self):
+        pass
+class Cactus(Planta):
+    def Area_asignada(self):
+        pass
 
 
 #####################################################################
 #                           ANIMAL
 #####################################################################
 class Animal(Organismo):
-    def __init__(self, nombre, ubicacion, vida_hp, energia, velocidad, Imagen_Animal, especie, Sexo, edad, Alimentacion, Direccion):
+
+    def __init__(self,nombre,ubicacion,vida_hp, energia, velocidad,Imagen_Animal,especie, Sexo, edad, Alimentacion,Direccion):
         super().__init__(nombre, ubicacion, vida_hp, energia, velocidad)
+        self.velocidad = velocidad
+        self.especie = especie
+
         self.sexo = Sexo
         self.edad = edad
         self.Alimentacion = Alimentacion
+
+        self.nivel_hambre = 70
+        self.nivel_sed = 100
+        self.ciclo_de_vida = 0
+        self.estado = "vivo"
+        self.Periodo_reproducion = False
+
         self.Imagen_Animal = Imagen_Animal
-        self.especie = especie
         self.Direccion = Direccion
-        # Resto de la inicialización
+        self.canvas = self.Prueba()
 
-        self.canvas = None
-
-    def Prueba(self, canvas):
-        self.canvas = canvas
+    def Prueba(self,canva=None):
+        self.canvas = canva
 
     def mostrar_imagen(self):
-        self.canvas.create_image(self.ubicacion[0], self.ubicacion[1], anchor=tk.NW, image=self.Imagen_Animal, tags=self.nombre)
+        self.canvas.create_image(self.ubicacion[0]*25,self.ubicacion[1]*25, anchor=tk.NW, image=self.Imagen_Animal, tags=self.nombre)
 
-    def animal_Moviendose(self, tag, posicion, direccion, columnas=40, filas=27, ancho_celda=25):
+    def animal_Moviendose(self,tag,posicion,direccion,columnas=40,filas=27,ancho_celda=25):
         self.canvas.delete(tag)
-
         if direccion == "arriba":
             posicion[1] -= 1
         elif direccion == "abajo":
@@ -88,7 +100,7 @@ class Animal(Organismo):
             posicion[0] -= 1
         elif direccion == "derecha":
             posicion[0] += 1
-
+        
         posicion[0] = max(0, min(posicion[0], columnas - 1))
         posicion[1] = max(0, min(posicion[1], filas - 1))
 
@@ -99,151 +111,59 @@ class Animal(Organismo):
 
         self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=self.Imagen_Animal, tags=self.nombre)
         return posicion
-
-
-#####################################################################
-#                           DEPREDADOR
-#####################################################################
-class Depredador(Animal):
-    def __init__(self, nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida):
-        super().__init__(nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida)
-
-    def cazar(self, presas):
-        presa = self.buscar_presa(presas)
-        self.moverse(presa)
-        self.atacar(presa)
-
-    def ciclo_vida(self):
-        self.vida -= 1
-        self.energia -= 1
-
-class Leon(Depredador):
-    def __init__(self, nombre, especie, ubicacion, vida, energia,velocidad, hambre, sed, ciclo_vida):
-        super().__init__(nombre, especie, ubicacion, vida, energia, velocidad, hambre=hambre, sed=sed, ciclo_vida=ciclo_vida)
-
-
-    def cazar(self, presas):
-        presa = self.buscar_presa(presas)
-        self.moverse(presa)
-        self.atacar(presa)
-        self.energia -= 20  # Reduzco energía específica del león al cazar
-        self.velocidad += 8  # Incremento de velocidad específico del león al cazar
-
-    def comer(self):
-        self.energia += 30
-
-    def dormir(self):
-        self.energia += 50
-
-class Hiena(Depredador):
-    def __init__(self, nombre, especie, ubicacion, vida, energia,velocidad, hambre, sed, ciclo_vida):
-        super().__init__(nombre, especie, ubicacion, vida, energia, velocidad, hambre=hambre, sed=sed, ciclo_vida=ciclo_vida)
-        self.velocidad = 20
-        self.vida = 100
-
-    def cazar(self):
-        self.energia -= 20
-        self.velocidad += 8
-
-    def comer(self):
-        self.energia += 30
-
-    def dormir(self):
-        self.energia += 50   
-#####################################################################
-#                           PRESA
-#####################################################################
-class Presa(Animal):
-    def __init__(self, nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida):
-        super().__init__(nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida)
-
-    def huir(self, depredadores):
-        depredador = self.buscar_depredador(depredadores)
-        if depredador:
-            self.moverse(depredador)
-
-    def ciclo_vida(self):
-        super().ciclo_vida()
-        self.hambre -= 1
-        self.sed -= 1
-
-class Jirafa(Presa):
-    def __init__(self, nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida):
-        super().__init__(nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida)
-        self.velocidad = 18
-
-    def huir(self):
-        self.energia -= 20
-        self.velocidad += 10
-
-    def comer(self):
-        self.energia += 30
-
-    def dormir(self):
-        self.energia += 50
-
-class Gacela(Presa):
-    def __init__(self, nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida):
-        super().__init__(nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida)
-        self.velocidad = 15
-        self.vida = 100
-
-    def huir(self):
-        self.energia -= 20
-        self.velocidad += 10
-
-    def comer(self):
-        self.energia += 30
-
-    def dormir(self):
-        self.energia += 50
-
-class Rinoceronte(Presa):
-    def __init__(self, nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida):
-        super().__init__(nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida)
-        self.velocidad = 15
-        self.vida = 150
-
-    def comer(self):
-        self.energia += 30
-
-    def dormir(self):
-        self.energia += 50
-
-class Tortuga(Presa):
-    def __init__(self, nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida):
-        super().__init__(nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida)
-        self.velocidad = 5
-        self.vida = 100
-
-    def comer(self):
-        self.energia += 30
-
-    def dormir(self):
-        self.energia += 50
         
+    def Morir(self,Tipo_de_muerte,Imagen = None):
+        print(f"El {self.nombre} ha muerto,{Tipo_de_muerte}")
+        self.estado = "muerto"
+        if Imagen != None:
+            return
+        else:
+            self.Imagen_Animal = Imagen
+
+        return 
+    def Comer(self):
+        self.nivel_hambre += 20
+        if self.nivel_hambre >= 100:
+            self.nivel_hambre = 100
+            # MENSAJE LOG : ANIMAL LLENO
+        print('comiedo')
+    def Daño(self):
+        self.vida -= 60    
+        print('Recibio daño')   
+class Leon(Animal):
+    pass
+class Jirafa(Animal):
+    pass
+class Hiena(Animal):
+    pass
+class Gacela(Animal):
+    pass
+class Rinoceronte(Animal):
+    pass
+class Elefante(Animal):
+    pass
+class Tortuga(Animal):
+    pass
+class Ciervo(Animal):
+    pass
+class Antilopes(Animal):
+    pass
+class Bufalo(Animal):
+    pass
+
 #####################################################################
 #                           AMBIENTE
 #####################################################################
 class Ambiente:
     def __init__(self):
         self.eventos_aleatorios = []
-        self.animales = []
 
     def agregar_evento_aleatorio(self, evento):
         self.eventos_aleatorios.append(evento)
 
-    def agregar_animal(self, animal):
-        self.animales.append(animal)
-
     def ejecutar_eventos_aleatorios(self):
         for evento in self.eventos_aleatorios:
             evento()
-
-    def ejecutar_ciclo_animales(self):
-        for animal in self.animales:
-            animal.ciclo_vida()
-            animal.actualizar_estado(1)
 
 #####################################################################
 #                           SAVANA
@@ -308,19 +228,8 @@ class Ecosistema(tk.Tk):
 #---------------------------------------------------------
         frame = tk.Frame(master=self, width=250, height=200, bg="#171717")
         frame.place(x=930,y=40)
-        mensaje= f'''
-        Ciclo:{"colocar varible de conexión"}
-        Animales: {"Num.-°"} habitantes
-        muertes: {"colocar varible de conexión"}
-        Plantas: {"colocar varible de conexión"}
-        Tiempo: {"colocar varible de conexión"}
-        Evento: {"Ninguno"}'''
-        label = tk.Label(master=frame, text=mensaje,fg="#E6E6E6" , bg="#1A1A1A",justify="left")
-        label.place(x=0,y=30)
-
         frame1 = tk.Frame(master=self, width=200, height=675, bg="black")
         frame1.place(x=940, y = 300)
-
         boton_meteorito = tk.Button(frame1, text="Generar Meteorito", command=self.generar_meteorito)
         boton_terremoto = tk.Button(frame1, text="Generar Terremoto", command=self.simular_terremoto) 
         boton_Estado = tk.Button(frame1, text="volver a la normalidad", command=self.resetear)  
@@ -337,26 +246,31 @@ class Ecosistema(tk.Tk):
         # Direcciones iniciales de los animales
         self.direccion_leon = choice(["arriba", "abajo", "izquierda", "derecha"])  #RAA
         self.direccion_leon2 = choice(["arriba", "abajo", "izquierda", "derecha"]) #RAA
-
         self.direccion_jirafa = choice(["arriba", "abajo", "izquierda", "derecha"])
         self.direccion_hiena = choice(["arriba", "abajo", "izquierda", "derecha"])
         self.direccion_gacela = choice(["arriba", "abajo", "izquierda", "derecha"])
         self.direccion_rinoceronte = choice(["arriba", "abajo", "izquierda", "derecha"])
         self.direccion_elefante = choice(["arriba", "abajo", "izquierda", "derecha"])
         self.direccion_tortuga = choice(["arriba", "abajo", "izquierda", "derecha"])
+        self.direccion_ciervo = choice(["arriba", "abajo", "izquierda", "derecha"])
+        self.direccion_antilopes = choice(["arriba", "abajo", "izquierda", "derecha"])
+        self.direccion_bufalo = choice(["arriba", "abajo", "izquierda", "derecha"])
 # --------------------------------------------
 # Instanciar Los animales, utilizando la clase animal
 # --------------------------------------------
-        self.Leon1 = Animal('Leon',[20, 20],100,100,2,None,"Carnivoro","m","joven",["Hervivoro,Plantas,Agua"],self.direccion_leon)
-        self.Leon2 = Animal('Leon',[21, 20],100,100,2,None,"Carnivoro","f","joven",["Hervivoro,Plantas,Agua"],self.direccion_leon)
-        self.hiena =  Animal('hiena',[4, 2],100,100,2,None,"Hervivoro","m","joven",["Hervivoro,Plantas,Agua"],self.direccion_hiena)
-        self.jirafa = Animal('jirafa',[3,5],100,100,2,None,"Hervivoro","m","joven",["Plantas,Agua"],self.direccion_jirafa)
-        self.gacela = Animal('gacela',[1, 1],100,100,2,None,"Carnivoro","m","joven",["Hervivoro,Plantas,Agua"],self.direccion_gacela)
-        self.rinoceronte = Animal('rinoceronte',[8, 15],100,100,2,None,"Carnivoro","m","joven",["Hervivoro,Plantas,Agua"],self.direccion_rinoceronte)
-        self.elefante = Animal('elefante',[12, 20],100,100,2,None,"Hervivoro","f","joven",["Plantas,Agua"],self.direccion_elefante)
-        self.tortuga = Animal('tortuga',[15, 25],100,100,2,None,"Hervivoro","m","joven",["Plantas,Agua"],self.direccion_tortuga)
-        self.Leon373 = Animal('Leon373',[10, 8],100,100,2,None,"Carnivoro","m","adulto",["Hervivoro,Plantas,Agua"],self.direccion_leon)
-        self.Leon777 = Animal('Leon777',[10, 8],100,100,2,None,"Carnivoro","m","adulto",["Hervivoro,Plantas,Agua"],self.direccion_leon)
+        self.Leon1 = Leon('Leon',[20, 20],10,100,2,None,"Carnivoro","m","joven",["Hervivoro,Plantas,Agua"],self.direccion_leon)
+        self.Leon2 = Leon('Leon',[21, 20],10,100,2,None,"Carnivoro","f","joven",["Hervivoro,Plantas,Agua"],self.direccion_leon)
+        self.hiena =  Hiena('hiena',[4, 2],10,100,2,None,"Hervivoro","m","joven",["Hervivoro,Plantas,Agua"],self.direccion_hiena)
+        self.jirafa = Jirafa('jirafa',[3,5],10,100,2,None,"Hervivoro","m","joven",["Plantas,Agua"],self.direccion_jirafa)
+        self.gacela = Gacela('gacela',[1, 1],10,100,2,None,"Carnivoro","m","joven",["Hervivoro,Plantas,Agua"],self.direccion_gacela)
+        self.rinoceronte = Rinoceronte('rinoceronte',[8, 15],10,100,2,None,"Carnivoro","m","joven",["Hervivoro,Plantas,Agua"],self.direccion_rinoceronte)
+        self.elefante = Elefante('elefante',[12, 20],10,100,2,None,"Hervivoro","f","joven",["Plantas,Agua"],self.direccion_elefante)
+        self.tortuga = Tortuga('tortuga',[15, 25],10,100,2,None,"Hervivoro","m","joven",["Plantas,Agua"],self.direccion_tortuga)
+        self.Leon373 = Leon('Leon373',[10, 8],10,100,2,None,"Carnivoro","m","adulto",["Hervivoro,Plantas,Agua"],self.direccion_leon)
+        self.Leon777 = Leon('Leon777',[10, 8],10,100,2,None,"Carnivoro","m","adulto",["Hervivoro,Plantas,Agua"],self.direccion_leon)
+        self.ciervo = Ciervo('ciervo',[20, 18],10,100,2,None,"Hervivoro","m","adulto",["Hervivoro,Plantas,Agua"],self.direccion_ciervo)
+        self.antilopes = Antilopes('antilopes',[2, 14],10,100,2,None,"Hervivoro","m","adulto",["Hervivoro,Plantas,Agua"],self.direccion_antilopes)
+        self.bufalo = Bufalo('bufalo',[13, 21],10,100,2,None,"Hervivoro","m","adulto",["Hervivoro,Plantas,Agua"],self.direccion_bufalo)
 
         self.Lista_Animales = {
             "animal1": self.Leon1,
@@ -369,10 +283,13 @@ class Ecosistema(tk.Tk):
             "animal8": self.tortuga,
             "animal9": self.Leon373,
             "animal10": self.Leon777,
-         }
+            "animal11": self.ciervo,
+            "animal12": self.antilopes,
+            "animal13": self.bufalo,
+        }
 
 
-    
+
     def resetear (self):
         self.restablecer_posicion_mapa()
 
@@ -381,6 +298,7 @@ class Ecosistema(tk.Tk):
             self.instancia()
             self.Mostrar_Animales()
             self.Animales_Desplazandose()
+            self.Inicializar_Plantas()
         elif self.proceso_diluvio:
             self.canvas.delete("leon373", "leon", "hiena", "jirafa", "gacela", "rinoceronte", "elefante", "tortuga", "Leon777")
 
@@ -423,6 +341,8 @@ class Ecosistema(tk.Tk):
         return [[centro_x + dx, centro_y + dy] for dx in range(-1, 2) for dy in range(-1, 2)]
 
     def generar_meteorito(self):
+        self.area_afectada = self.generar_impacto_3x3()   #CODE
+        self.area_afectada += [[random.randint(0, 26), random.randint(0, 39)] for x in range(19)] #CODE
         for area_afectada in self.area_afectada:
             imagen_fondo = self.meteoritos_2_image
             x_posicion = area_afectada[1] * self.ancho_celda
@@ -432,6 +352,11 @@ class Ecosistema(tk.Tk):
                 logging.info(f"El meteorito realizó un impacto en las coordenadas ({x_posicion // self.ancho_celda}, {y_posicion // self.ancho_celda})")
             except Exception as e:
                 print(f"Ocurrió un error: {e}")
+            # Condicional en caso que alla un animal muera
+            for animal,tipo_animal in self.Lista_Animales.items():
+                Tipo_animal = self.Lista_Animales[animal]
+                if Tipo_animal.ubicacion[0] == (x_posicion//25) and Tipo_animal.ubicacion[1] == (y_posicion//25):
+                   self.Prueba_muerte(Tipo_animal,"Meteorito")
         logging.info("ACABA DE CAER UN METEORITOO")
 
     def simular_terremoto(self):
@@ -443,6 +368,14 @@ class Ecosistema(tk.Tk):
         self.restablecer_posicion_mapa()
         logging.info(" SE A GENERADO UN TERREMOTOOOOO")
 
+    def Prueba_muerte(self,Animal_Muere,Razon):
+        Tumba = self.Cargar_Imagenes_ANIMALES()
+        Animal = Animal_Muere
+        if Razon == "Meteorito":
+            Animal.Morir("Aplastado por meteorito DX",Tumba[11])
+            # self.Mostrar_Animales()
+        if Razon == "Comido":
+            Animal.Morir("Fue comido por un depredador",Tumba[11])
 
     def restablecer_posicion_mapa(self):
         # Restaura las posiciones originales de la cuadrícula
@@ -577,6 +510,7 @@ class Ecosistema(tk.Tk):
         return x_actual, y_actual
     
     def Cargar_Imagenes_ANIMALES(self):
+        # Cargar imágenes de animales
         self.lion_image = Image.open("imagenes/leon.png")            # [0]
         self.jirafa_image = Image.open("imagenes/jirafa.png")        # [1]
         self.hiena_image = Image.open("imagenes/hiena.png")          # [2]
@@ -585,9 +519,13 @@ class Ecosistema(tk.Tk):
         self.elefante_image = Image.open("imagenes/elefante.png")  # [5]
         self.tortuga_image = Image.open("imagenes/tortuga.png")    # [6]
         self.lion00_image = Image.open("imagenes/cria_leon.png")  # [7]
-        self.meteoritos_2_image = Image.open("imagenes/meteorito2.png")    ##RAA , añadir el 1 y 2 , ya que una estaba remplazando la otra
+        self.meteoritos_2_image = Image.open("imagenes/meteorito2.png")    # alerta: La imagen del meteorito no se esta llamando , porque la imagen esta ya en una varible ,en la parte que se especifca el fondo :y la razo que funcione el metorito es porque usas esa variable para mostrar la imagen
+        self.ciervo_image = Image.open("imagenes/ciervo.png")     # [8]
+        self.antilopes_image = Image.open("imagenes/antilope.png")  # [9]
+        self.bufalo_image = Image.open("imagenes/bufalo.png")       # [10]
+        self.Tumba = Image.open("imagenes/muerto.png") # [11]  # Imagen cuando el animal muere
  
-        # Redimensionar imágenes de animales
+        # Redimebufalo_imagensionar imágenes de animales
         self.lion_image = self.lion_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
         self.jirafa_image = self.jirafa_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
         self.hiena_image = self.hiena_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
@@ -596,7 +534,11 @@ class Ecosistema(tk.Tk):
         self.elefante_image = self.elefante_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
         self.tortuga_image = self.tortuga_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
         self.lion00_image = self.lion00_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
-        self.meteoritos_2_image = self.meteoritos_2_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)  ##RAA
+        self.meteoritos_2_image = self.meteoritos_2_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)  # alerta :La imagen del meteorito no se esta llamando , porque la imagen esta ya en una varible ,en la parte que se especifca el fondo :y la razo que funcione el metorito es porque usas esa variable para mostrar la imagen
+        self.ciervo_image = self.ciervo_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS) 
+        self.antilopes_image = self.antilopes_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS) 
+        self.bufalo_image = self.bufalo_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS) 
+        self.TumbaTumba = self.Tumba.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS) 
 
         # Convertir imágenes a formato Tkinter
         self.lion_image = ImageTk.PhotoImage(self.lion_image)
@@ -607,17 +549,77 @@ class Ecosistema(tk.Tk):
         self.elefante_image = ImageTk.PhotoImage(self.elefante_image)
         self.tortuga_image = ImageTk.PhotoImage(self.tortuga_image)
         self.lion00_image = ImageTk.PhotoImage(self.lion00_image)
-        self.meteoritos_2_image = ImageTk.PhotoImage(self.meteoritos_2_image)
+        self.meteoritos_2_image = ImageTk.PhotoImage(self.meteoritos_2_image) # alerta :La imagen del meteorito no se esta llamando , porque la imagen esta ya en una varible ,en la parte que se especifca el fondo :y la razo que funcione el metorito es porque usas esa variable para mostrar la imagen
+        self.ciervo_image = ImageTk.PhotoImage(self.ciervo_image)
+        self.antilopes_image = ImageTk.PhotoImage(self.antilopes_image)
+        self.bufalo_image = ImageTk.PhotoImage(self.bufalo_image)
+        self.Tumba = ImageTk.PhotoImage(self.Tumba)
         # Añadir las imagenes a una lista 
-        Animal = [self.lion_image, self.hiena_image,self.jirafa_image, self.gacela_image, self.rinoceronte_image, self.elefante_image, self.tortuga_image, self.lion00_image]
+        Animal = [self.lion_image, self.hiena_image,self.jirafa_image, self.gacela_image, self.rinoceronte_image, self.elefante_image, self.tortuga_image, self.lion00_image,self.ciervo_image,self.antilopes_image,self.bufalo_image,self.Tumba]
         # Retornar la lista 
         return Animal
-  
+    
+    def Cargar_Imagenes_Plantas(self):
+        # Cargar imagenes
+        self.manzano_image = Image.open("Plantas/arbol.png")       # [0]
+        self.arbol_image = Image.open("Plantas/arbol_rojo.png")    # [1]
+        self.arbusto_image = Image.open("Plantas/arbusto.png")     # [2]
+        self.helechon_image = Image.open("Plantas/helechos.png")   # [3]
+        self.cactus_image = Image.open("Plantas/cactus.png")       # [4]
+
+        # Redimebufalo_imagensionar imágenes de animales
+        self.manzano_image = self.manzano_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
+        self.arbol_image = self.arbol_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
+        self.arbusto_image = self.arbusto_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
+        self.helechon_image = self.helechon_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
+        self.cactus_image = self.cactus_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
+
+        # Convertir imágenes a formato Tkinter
+        self.manzano_image = ImageTk.PhotoImage(self.manzano_image)
+        self.arbol_image = ImageTk.PhotoImage(self.arbol_image)
+        self.arbusto_image = ImageTk.PhotoImage(self.arbusto_image)
+        self.helechon_image = ImageTk.PhotoImage(self.helechon_image)
+        self.cactus_image = ImageTk.PhotoImage(self.cactus_image)
+
+        # Arrreglo para plantas
+        Plantas_list  = [self.manzano_image,self.arbol_image,self.arbusto_image,self.helechon_image,self.cactus_image]
+        return Plantas_list 
+    
+
+    def Inicializar_Plantas(self):
+        Plantas_list = self.Cargar_Imagenes_Plantas()
+        fondo_Tierra = []
+        fondo_Pasto = []
+        fondo_Agua = []
+        for fila in range(self.filas):
+            for columna in range(self.columnas):
+                if self.mapa_numerico[fila][columna] == 0:
+                    posicion = [fila,columna]
+                    fondo_Agua.append(posicion)
+                elif self.mapa_numerico[fila][columna] == 1:
+                    posicion = [fila,columna]
+                    fondo_Pasto.append(posicion)
+                elif self.mapa_numerico[fila][columna] == 2:
+                    posicion = [fila,columna]
+                    fondo_Tierra.append(posicion)
+
+        self.manzana = Planta('Manzano','Planta',choice(fondo_Pasto),100,100,0,10,100,Plantas_list[0])  # Manzano
+        self.arbol =   Planta('Arbol','Planta',choice(fondo_Pasto),100,100,0,100,100,Plantas_list[1])   # Arbol
+        self.arbusto = Planta('Arbusto','Planta',choice(fondo_Pasto),100,100,0,100,100,Plantas_list[2]) # arbusto
+        self.helechon =Planta('Helechon','Planta',choice(fondo_Pasto),100,100,0,100,100,Plantas_list[3])# helechom
+        self.cactus =  Planta('Cactus','Planta',choice(fondo_Tierra),100,100,0,100,100,Plantas_list[4]) # cactus
+
+        self.canvas.create_image(self.manzana.ubicacion[0]*25,self.manzana.ubicacion[1]*25, anchor=tk.NW, image=self.manzana.Image_Planta, tags=self.manzana.nombre) 
+        self.canvas.create_image(self.arbol.ubicacion[0]*25,self.arbol.ubicacion[1]*25, anchor=tk.NW, image=self.arbol.Image_Planta, tags=self.arbol.nombre) 
+        self.canvas.create_image(self.arbusto.ubicacion[0]*25,self.arbusto.ubicacion[1]*25, anchor=tk.NW, image=self.arbusto.Image_Planta, tags=self.arbusto.nombre) 
+        self.canvas.create_image(self.helechon.ubicacion[0]*25,self.helechon.ubicacion[1]*25, anchor=tk.NW, image=self.helechon.Image_Planta, tags=self.helechon.nombre) 
+        self.canvas.create_image(self.cactus.ubicacion[0]*25,self.cactus.ubicacion[1]*25, anchor=tk.NW, image=self.cactus.Image_Planta, tags=self.cactus.nombre)
+
     def Mostrar_Animales(self):
-        if not self.proceso_diluvio:
-            Animal = self.Cargar_Imagenes_ANIMALES()
-            for animal,tipo_animal in self.Lista_Animales.items():
-                Tipo_animal = self.Lista_Animales[animal]     
+        Animal = self.Cargar_Imagenes_ANIMALES()
+        for animal,tipo_animal in self.Lista_Animales.items():
+            Tipo_animal = self.Lista_Animales[animal]
+            if 'vivo' == Tipo_animal.estado:
                 if 'Leon' in Tipo_animal.nombre:
                     if 'joven' in Tipo_animal.edad:
                         Tipo_animal.Imagen_Animal = Animal[7]
@@ -635,9 +637,17 @@ class Ecosistema(tk.Tk):
                     Tipo_animal.Imagen_Animal = Animal[5]
                 elif 'tortuga' in  Tipo_animal.nombre:
                     Tipo_animal.Imagen_Animal = Animal[6]
-                Tipo_animal.Prueba(self.canvas)
-                Tipo_animal.mostrar_imagen()
-
+                elif 'ciervo' in  Tipo_animal.nombre:
+                    Tipo_animal.Imagen_Animal = Animal[8]
+                elif 'antilopes' in  Tipo_animal.nombre:
+                    Tipo_animal.Imagen_Animal = Animal[9]
+                elif 'bufalo' in  Tipo_animal.nombre:
+                    Tipo_animal.Imagen_Animal = Animal[10]
+            else:
+                Tipo_animal.Imagen_Animal = Animal[11]
+                
+            Tipo_animal.Prueba(self.canvas)
+            Tipo_animal.mostrar_imagen()
     def cria_2(self):
         self.canvas.delete('Leon777')
 
@@ -648,33 +658,29 @@ class Ecosistema(tk.Tk):
 
 
     def Animales_Desplazandose(self):
-        self.canvas.delete("leon373","leon","hiena", "jirafa", "gacela", "rinoceronte", "elefante", "tortuga")
-
-        self.Leon373.ubicacion = self.Leon373.animal_Moviendose(self.Leon373.nombre ,self.Leon373.ubicacion ,self.Leon373.Direccion )
-        self.Leon1.ubicacion = self.Leon1.animal_Moviendose(self.Leon1.nombre,self.Leon1.ubicacion,self.Leon1.Direccion)      
-        self.Leon2.ubicacion = self.Leon2.animal_Moviendose(self.Leon2.nombre,self.Leon2.ubicacion,self.Leon2.Direccion)
-        self.hiena.ubicacion = self.hiena.animal_Moviendose(self.hiena.nombre, self.hiena.ubicacion ,self.hiena.Direccion)
-        self.jirafa.ubicacion = self.jirafa.animal_Moviendose(self.jirafa.nombre, self.jirafa.ubicacion, self.jirafa.Direccion)  
-        self.gacela.ubicacion = self.gacela.animal_Moviendose(self.gacela.nombre,self.gacela.ubicacion, self.gacela.Direccion)  
-        self.rinoceronte.ubicacion = self.rinoceronte.animal_Moviendose(self.rinoceronte.nombre, self.rinoceronte.ubicacion, self.rinoceronte.Direccion)
-        self.elefante.ubicacion = self.elefante.animal_Moviendose(self.elefante.nombre, self.elefante.ubicacion, self.elefante.Direccion)      
-        self.tortuga.ubicacion = self.tortuga.animal_Moviendose(self.tortuga.nombre,self.tortuga.ubicacion, self.tortuga.Direccion)
-
-
-        self.registrar_movimiento(self.Leon373.nombre, self.Leon373.ubicacion)
-        self.registrar_movimiento(self.Leon1.nombre, self.Leon1.ubicacion)
-        self.registrar_movimiento(self.Leon2.nombre, self.Leon2.ubicacion)
-        self.registrar_movimiento(self.hiena.nombre, self.hiena.ubicacion )
-        self.registrar_movimiento(self.jirafa.nombre, self.jirafa.ubicacion)
-        self.registrar_movimiento(self.gacela.nombre,self.gacela.ubicacion)
-        self.registrar_movimiento(self.rinoceronte.nombre, self.rinoceronte.ubicacion)
-        self.registrar_movimiento(self.elefante.nombre,self.elefante.ubicacion)
-        self.registrar_movimiento(self.tortuga.nombre, self.tortuga.ubicacion)
-
-        self.Leon777.ubicacion = self.Leon777.animal_Moviendose(self.Leon777.nombre ,self.Leon777.ubicacion ,self.Leon777.Direccion )
-        self.registrar_movimiento(self.Leon777.nombre, self.Leon777.ubicacion)
+        self.canvas.delete("leon373","leon","hiena", "jirafa", "gacela", "rinoceronte", "elefante", "tortuga","ciervo","antilopes","bufalo")
         
+        for animal,tipo_animal in self.Lista_Animales.items():
+            Tipo_animal = self.Lista_Animales[animal]
+            if Tipo_animal.estado == "vivo":
+                Tipo_animal.ubicacion = Tipo_animal.animal_Moviendose(Tipo_animal.nombre ,Tipo_animal.ubicacion ,Tipo_animal.Direccion )
+                self.registrar_movimiento(Tipo_animal.nombre,Tipo_animal.ubicacion)
+                if Tipo_animal.nivel_hambre <= 90:
+                    self.Encontrar_Animal_Cerca(Tipo_animal)
+        self.Mostrar_Animales()
+            
         self.after(300,self.Animales_Desplazandose)
+    def Encontrar_Animal_Cerca(self,Depredador):
+        Animal_encontrado = [self.Lista_Animales[animal] for animal,tipo_a in self.Lista_Animales.items() if (self.Lista_Animales[animal].ubicacion[0])+ 25 == Depredador.ubicacion[0] or (self.Lista_Animales[animal].ubicacion[1])+25 == Depredador.ubicacion[1]]
+        if len(Animal_encontrado) >= 1:
+            Animal_encontrado = choice(Animal_encontrado)
+            if Animal_encontrado.estado == 'vivo':
+                if Animal_encontrado.especie == "Hervivoro" and Depredador.especie == "Carnivoro" :
+                    Depredador.Comer()
+                    Animal_encontrado.Daño()
+                    print(Depredador.nombre,'ha atacado a ',Animal_encontrado.nombre)
+                    if Animal_encontrado.vida <= 0:
+                        self.Prueba_muerte(Animal_encontrado,"Comido")
 
     def iniciar_logging(self):
         # Generar un identificador inicial de archivo basado en la marca de tiempo
