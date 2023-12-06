@@ -242,15 +242,6 @@ class Ventana(tk.Tk):
 #---------------------------------------------------------
         frame = tk.Frame(master=self, width=250, height=200, bg="#171717")
         frame.place(x=930,y=40)
-        mensaje= f'''
-        Ciclo:{"colocar varible de conexión"}
-        Animales: {"Num.-°"} habitantes
-        muertes: {"colocar varible de conexión"}
-        Plantas: {"colocar varible de conexión"}
-        Tiempo: {"colocar varible de conexión"}
-        Evento: {"Ninguno"}'''
-        label = tk.Label(master=frame, text=mensaje,fg="#E6E6E6" , bg="#1A1A1A",justify="left")
-        label.place(x=0,y=30)
         frame1 = tk.Frame(master=self, width=200, height=675, bg="black")
         frame1.place(x=940, y = 300)
         boton_meteorito = tk.Button(frame1, text="Generar Meteorito", command=self.generar_meteorito)
@@ -330,7 +321,7 @@ class Ventana(tk.Tk):
             y_posicion = area_afectada[0] * self.ancho_celda
             try:
                 self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=imagen_fondo, tags="fondo")
-                logging.info(f"El meteorito realizó un impacto en las coordenadas ({x_posicion // self.ancho_celda}, {y_posicion // self.ancho_celda})")
+                logging.info(f"El meteorito realizo un impacto en las coordenadas ({x_posicion // self.ancho_celda}, {y_posicion // self.ancho_celda})")
             except Exception as e:
                 print(f"Ocurrió un error: {e}")
             # Condicional en caso que alla un animal muera
@@ -648,7 +639,7 @@ class Ventana(tk.Tk):
         self.after(300,self.Animales_Desplazandose)
 
     def registrar_movimiento(self, animal, posicion):
-        mensaje = f"{animal} se movió a la posición {posicion}"
+        mensaje = f"{animal} se movio a la posición {posicion}"
         logging.info(mensaje)
 
 filas = 27
