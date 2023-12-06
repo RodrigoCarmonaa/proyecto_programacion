@@ -4,7 +4,7 @@ from PIL import Image, ImageTk
 from random import choice, randint
 import random
 import logging
-# -- coding: utf-8 --
+# -*- coding: utf-8 -*-
 
 # Configurar el sistema de registro
 logging.basicConfig(filename='prueba.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -13,7 +13,7 @@ logging.basicConfig(filename='prueba.log', level=logging.DEBUG, format='%(asctim
 #                           organismos 
 #####################################################################
 class Organismo:
-    def _init_(self, nombre, ubicacion, vida, energia, velocidad):
+    def __init__(self, nombre, ubicacion, vida, energia, velocidad):
         self.nombre = nombre
         self.ubicacion = ubicacion
         self.vida = vida
@@ -23,8 +23,8 @@ class Organismo:
 #                           PLANTA
 #####################################################################
 class Planta(Organismo):
-    def _init_(self, nombre, tipo, ubicacion, vida, energia, velocidad, ciclo_vida, tiempo_sin_agua):
-        super()._init_(nombre, ubicacion, vida, energia, velocidad)
+    def __init__(self, nombre, tipo, ubicacion, vida, energia, velocidad, ciclo_vida, tiempo_sin_agua):
+        super().__init__(nombre, ubicacion, vida, energia, velocidad)
         self.tipo = tipo
         self.ciclo_vida = ciclo_vida
         self.tiempo_sin_agua = tiempo_sin_agua
@@ -59,8 +59,8 @@ class Planta(Organismo):
 #----------------------------------------
 class Animal(Organismo):
 
-    def _init_(self,nombre,ubicacion,vida_hp, energia, velocidad,Imagen_Animal,especie, Sexo, edad, Alimentacion,Direccion):
-        super()._init_(nombre, ubicacion, vida_hp, energia, velocidad)
+    def __init__(self,nombre,ubicacion,vida_hp, energia, velocidad,Imagen_Animal,especie, Sexo, edad, Alimentacion,Direccion):
+        super().__init__(nombre, ubicacion, vida_hp, energia, velocidad)
         self.velocidad = velocidad
         self.especie = especie
 
@@ -112,7 +112,7 @@ class Animal(Organismo):
 #                           AMBIENTE
 #####################################################################
 class Ambiente:
-    def _init_(self):
+    def __init__(self):
         self.eventos_aleatorios = []
 
     def agregar_evento_aleatorio(self, evento):
@@ -126,7 +126,7 @@ class Ambiente:
 #                           SAVANA
 #####################################################################
 class SavanaAfricana:
-    def _init_(self, temperatura, estacion_seca, estacion_lluvia, vegetacion, fauna):
+    def __init__(self, temperatura, estacion_seca, estacion_lluvia, vegetacion, fauna):
         self.temperatura = temperatura
         self.estacion_seca = estacion_seca
         self.estacion_lluvia = estacion_lluvia
@@ -146,7 +146,7 @@ class SavanaAfricana:
 #                           ECOSISTEMAS
 #####################################################################
 class Ecosistema:
-    def _init_(self):
+    def __init__(self):
         self.organismos = []
         self.ambiente = []
 
@@ -155,14 +155,16 @@ class Ecosistema:
 #####################################################################
 #                           MOTOR DE EVENTOS
 #####################################################################
+"""
 #####################################################################
     
 #####################################################################
 #                           VENTANA
 #####################################################################
+"""
 class Ventana(tk.Tk):
-    def _init_(self, filas, columnas, ancho_celda, *args, **kwargs):
-        super()._init_(*args, **kwargs)
+    def __init__(self, filas, columnas, ancho_celda, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.filas = filas
         self.columnas = columnas
         self.ancho_celda = ancho_celda
@@ -272,18 +274,25 @@ class Ventana(tk.Tk):
                         y_posicion = fila * self.ancho_celda
                         self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=imagen_fondo, tags="fondo")   
     def crear_cuadricula(self):
-        # Crear la cuadrícula una vez al inicio
-        canvas = tk.Canvas(self, width=self.columnas * self.ancho_celda, height=self.filas * self.ancho_celda)
-        # canvas.pack()
-        canvas.place(x=45,y=5)
+        self.canvas = tk.Canvas(self, width=self.columnas * self.ancho_celda, height=self.filas * self.ancho_celda)
+        self.canvas.pack()
+
+        # Listas para almacenar los IDs de las líneas horizontales y verticales
+        self.ids_lineas_horizontales = []
+        self.ids_lineas_verticales = []
 
         for i in range(1, self.filas):
             y = i * self.ancho_celda
-            canvas.create_line(0, y, self.columnas * self.ancho_celda, y)
+            id_linea_horizontal = self.canvas.create_line(0, y, self.columnas * self.ancho_celda, y)
+            self.ids_lineas_horizontales.append(id_linea_horizontal)
 
         for j in range(1, self.columnas):
             x = j * self.ancho_celda
-            canvas.create_line(x, 0, x, self.filas * self.ancho_celda)
+            id_linea_vertical = self.canvas.create_line(x, 0, x, self.filas * self.ancho_celda)
+            self.ids_lineas_verticales.append(id_linea_vertical)
+
+        # Guardar una referencia al canvas para su uso posterior
+        self.posicion_original_cuadricula = self.obtener_posicion_cuadricula()
 
         self.canvas = canvas  # Guardar una referencia al canvas para su uso posterior
     
@@ -412,7 +421,7 @@ for fila in biome_noise:
             mapa_fila.append(2)  # Café
     mapa_numerico.append(mapa_fila)
 
-if __name__ == "_main_":
+if __name__ == "__main__":
     ventana = Ventana(filas=27, columnas= 35, ancho_celda=25)
     ventana.geometry("1190x675") # RAA
     ventana.config(bg="black")

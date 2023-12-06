@@ -482,20 +482,6 @@ class Ventana(tk.Tk):
                     self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=imagen_fondo, tags="fondo")
 
 
-     
-
-    def obtener_posiciones_originales_animales(self):
-        # Obtén las coordenadas originales de todos los animales
-        posiciones_originales = {
-            "leon": self.leon_posicion.copy(),
-            "jirafa": self.jirafa_posicion.copy(),
-            "hiena": self.hiena_posicion.copy(),
-            "gacela": self.gacela_posicion.copy(),
-            "rinoceronte": self.rinoceronte_posicion.copy(),
-            "elefante": self.elefante_posicion.copy(),
-            "tortuga": self.tortuga_posicion.copy(),
-        }
-        return posiciones_originales
     
     def restaurar_posiciones_originales(self):
         # Restaura las posiciones originales de la cuadrícula
