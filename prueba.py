@@ -131,25 +131,35 @@ class Animal(Organismo):
         self.vida -= 60    
         print('Recibio daño')   
 class Leon(Animal):
-    pass
+    def rugir(self):
+        logging.info(f"El {self.nombre} ha rugido")
 class Jirafa(Animal):
-    pass
+    def estirar_cuello(self):
+        logging.info(f"La {self.nombre} ha estirado el cuello")
 class Hiena(Animal):
-    pass
+    def reir(self):
+        logging.info(f"La {self.nombre} ha reido")
 class Gacela(Animal):
-    pass
+    def saltar(self):
+        logging.info(f"La {self.nombre} ha saltado")
 class Rinoceronte(Animal):
-    pass
+    def embestir(self):
+        logging.info(f"El {self.nombre} ha embestido")
 class Elefante(Animal):
-    pass
+    def cargar(self):
+        logging.info(f"El {self.nombre} ha cargado")
 class Tortuga(Animal):
-    pass
+    def esconderse(self):
+        logging.info(f"La {self.nombre} se ha escondido")
 class Ciervo(Animal):
-    pass
+    def saltar(self):
+        logging.info(f"El {self.nombre} ha saltado")
 class Antilopes(Animal):
-    pass
+    def correr(self):
+        logging.info(f"El {self.nombre} ha corrido")
 class Bufalo(Animal):
-    pass
+    def embestir(self):
+        logging.info(f"El {self.nombre} ha embestido")
 
 #####################################################################
 #                           AMBIENTE
@@ -200,7 +210,8 @@ class Ecosistema(tk.Tk):
         self.mapa_numerico = mapa_numerico
         self.area_afectada = self.generar_impacto_3x3()
         self.area_afectada += [[random.randint(0, 26), random.randint(0, 39)] for x in range(19)]
-        self.iniciar_logging()
+
+        logging.basicConfig(filename='prueba.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 # ----------------------------------------------
 # Propiedades que se usaran para crear el fondo.
 # ----------------------------------------------
@@ -670,6 +681,8 @@ class Ecosistema(tk.Tk):
         self.Mostrar_Animales()
             
         self.after(300,self.Animales_Desplazandose)
+
+
     def Encontrar_Animal_Cerca(self,Depredador):
         Animal_encontrado = [self.Lista_Animales[animal] for animal,tipo_a in self.Lista_Animales.items() if (self.Lista_Animales[animal].ubicacion[0])+ 25 == Depredador.ubicacion[0] or (self.Lista_Animales[animal].ubicacion[1])+25 == Depredador.ubicacion[1]]
         if len(Animal_encontrado) >= 1:
@@ -682,45 +695,12 @@ class Ecosistema(tk.Tk):
                     if Animal_encontrado.vida <= 0:
                         self.Prueba_muerte(Animal_encontrado,"Comido")
 
-    def iniciar_logging(self):
-        # Generar un identificador inicial de archivo basado en la marca de tiempo
-        self.nuevo_identificador = time.strftime("%Y%m%d_%H%M%S")
-        self.nuevo_archivo_log = f"movimientos_{self.nuevo_identificador}.log"
-
-        # Configurar el sistema de registro con el nuevo archivo
-        logging.basicConfig(
-            filename=self.nuevo_archivo_log,
-            level=logging.DEBUG,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            encoding='utf-8'
-        )
-
-
-
     def registrar_movimiento(self, animal, posicion):
         mensaje = f"{animal} se movió a la posición {posicion}"
         logging.info(mensaje)
         return None
        
-    def reiniciar_logging(self):
-        # Crear un nuevo identificador de archivo basado en la marca de tiempo
-        nuevo_identificador = time.strftime("%Y%m%d_%H%M%S")
-        nuevo_archivo_log = f"movimientos_{nuevo_identificador}.log"
-
-        # Agregar un nuevo manejador para el nuevo archivo de registro
-        nuevo_handler = logging.FileHandler(nuevo_archivo_log, encoding='utf-8')
-        nuevo_handler.setLevel(logging.DEBUG)
-        nuevo_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-        logging.getLogger().addHandler(nuevo_handler)
-
-        # Eliminar manejadores antiguos si es necesario
-        self.eliminar_handlers_antiguos()
-
-    def eliminar_handlers_antiguos(self):
-        root_logger = logging.getLogger()
-        for handler in root_logger.handlers[:]:
-            if isinstance(handler, logging.FileHandler):
-                root_logger.removeHandler(handler)
+    
 
 
 filas = 27
@@ -753,7 +733,6 @@ for fila in biome_noise:
 
 if __name__ == "__main__":
     ecosistema = Ecosistema(filas=27, columnas= 35, ancho_celda=25)
-    ecosistema.reiniciar_logging()
     ecosistema.geometry("1190x675") # RAA
     ecosistema.config(bg="black")
     ecosistema.mainloop()
