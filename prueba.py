@@ -4,11 +4,11 @@ from PIL import Image, ImageTk
 from random import choice
 import random
 import logging
+import time 
 
 # -*- coding: utf-8 -*-
 
-# Configurar el sistema de registro
-logging.basicConfig(filename='prueba.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 #####################################################################
 #                           organismos 
@@ -59,81 +59,46 @@ class Planta(Organismo):
 #                           ANIMAL
 #####################################################################
 class Animal(Organismo):
-    def __init__(self, nombre, especie, ubicacion, vida, energia, velocidad, hambre, sed, ciclo_vida):
-        super().__init__(nombre, ubicacion, vida, energia, velocidad)
+    def __init__(self, nombre, ubicacion, vida_hp, energia, velocidad, Imagen_Animal, especie, Sexo, edad, Alimentacion, Direccion):
+        super().__init__(nombre, ubicacion, vida_hp, energia, velocidad)
+        self.sexo = Sexo
+        self.edad = edad
+        self.Alimentacion = Alimentacion
+        self.Imagen_Animal = Imagen_Animal
         self.especie = especie
-        self.hambre = hambre
-        self.sed = sed
-        self.campo_vision = 2
-        self.ciclo_vida = ciclo_vida
-        self.tiempo_sin_comida = 0
-        self.tiempo_sin_agua = 0
+        self.Direccion = Direccion
+        # Resto de la inicialización
 
-    def atacar(self, presa):
-        if presa:
-            # El animal inflige daño a la presa
-            presa.recibir_ataque(self)
+        self.canvas = None
 
-    def recibir_ataque(self, atacante):
-        # El animal recibe daño del atacante
-        self.vida -= atacante.energia
+    def Prueba(self, canvas):
+        self.canvas = canvas
 
-        # Si la vida del animal cae a cero o menos, muere
-        if self.vida <= 0:
-            self.vida = 0
-            self.energia = 0
+    def mostrar_imagen(self):
+        self.canvas.create_image(self.ubicacion[0], self.ubicacion[1], anchor=tk.NW, image=self.Imagen_Animal, tags=self.nombre)
 
+    def animal_Moviendose(self, tag, posicion, direccion, columnas=40, filas=27, ancho_celda=25):
+        self.canvas.delete(tag)
 
-    def moverse(self, objetivo=None):
-        if objetivo:
-            direccion_x = objetivo.ubicacion[0] - self.ubicacion[0]
-            direccion_y = objetivo.ubicacion[1] - self.ubicacion[1]
-            distancia = max(abs(direccion_x), abs(direccion_y))
+        if direccion == "arriba":
+            posicion[1] -= 1
+        elif direccion == "abajo":
+            posicion[1] += 1
+        elif direccion == "izquierda":
+            posicion[0] -= 1
+        elif direccion == "derecha":
+            posicion[0] += 1
 
-            if distancia > 0:
-                direccion_x /= distancia
-                direccion_y /= distancia
+        posicion[0] = max(0, min(posicion[0], columnas - 1))
+        posicion[1] = max(0, min(posicion[1], filas - 1))
 
-                if isinstance(objetivo, Planta):
-                    velocidad = min(self.velocidad, objetivo.velocidad)
-                else:
-                    velocidad = min(self.velocidad * 2, objetivo.velocidad)
+        x_posicion = posicion[0] * ancho_celda
+        y_posicion = posicion[1] * ancho_celda
 
-                nueva_ubicacion = (
-                    self.ubicacion[0] + int(direccion_x * velocidad),
-                    self.ubicacion[1] + int(direccion_y * velocidad)
-                )
-                self.ubicacion = nueva_ubicacion
-        else:
-            super().moverse()
+        self.Direccion = choice(["arriba", "abajo", "izquierda", "derecha"])
 
-    def buscar_presa(self, presas):
-        for presa in presas:
-            distancia = abs(self.ubicacion[0] - presa.ubicacion[0]) + abs(self.ubicacion[1] - presa.ubicacion[1])
-            if distancia <= self.campo_vision and self.hambre > 0:
-                return presa
-        return None
-
-    def buscar_charco(self, charcos):
-        for charco in charcos:
-            distancia = abs(self.ubicacion[0] - charco.ubicacion[0]) + abs(self.ubicacion[1] - charco.ubicacion[1])
-            if distancia <= self.campo_vision and self.sed > 0:
-                return charco
-        return None
-
-    def alimentarse(self, presa):
-        if presa:
-            self.energia += presa.vida
-            self.hambre = max(0, self.hambre - presa.vida)
-
-    def beber(self, charco):
-        if charco:
-            self.energia += charco.agua
-            self.sed = max(0, self.sed - charco.agua)
-
-    def reproducirse(self):
-        nuevo_animal = Animal(f"NuevoAnimal_{choice(1, 100)}", self.especie, self.ubicacion, vida=1, energia=1, velocidad=1, hambre=1, sed=1)
-        return nuevo_animal
+        self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=self.Imagen_Animal, tags=self.nombre)
+        return posicion
 
 
 #####################################################################
@@ -315,11 +280,7 @@ class Ecosistema(tk.Tk):
         self.mapa_numerico = mapa_numerico
         self.area_afectada = self.generar_impacto_3x3()
         self.area_afectada += [[random.randint(0, 26), random.randint(0, 39)] for x in range(19)]
-        
-        
-        
-        # Configurar el sistema de registro para la ventana
-        logging.basicConfig(filename='movimientos.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', encoding='utf-8')
+        self.iniciar_logging()
 # ----------------------------------------------
 # Propiedades que se usaran para crear el fondo.
 # ----------------------------------------------
@@ -338,7 +299,7 @@ class Ecosistema(tk.Tk):
 
         self.proceso_diluvio = False
         self.crear_cuadricula()
-        self.crear_fondo()        
+        self.crear_fondo()      
         self.animales()
         
         
@@ -443,6 +404,7 @@ class Ecosistema(tk.Tk):
         else:
             self.proceso_diluvio = False
             self.mostrar_animales_despues_diluvio()
+        logging.info("DILUVIOOOOOOOOOOOOO")
             
     def mostrar_animales_despues_diluvio(self):
         if not self.proceso_diluvio:
@@ -464,6 +426,7 @@ class Ecosistema(tk.Tk):
                 logging.info(f"El meteorito realizó un impacto en las coordenadas ({x_posicion // self.ancho_celda}, {y_posicion // self.ancho_celda})")
             except Exception as e:
                 print(f"Ocurrió un error: {e}")
+        logging.info("ACABA DE CAER UN METEORITOO")
 
     def simular_terremoto(self):
         # Almacena la posición original de la cuadrícula y del mapa
@@ -472,6 +435,7 @@ class Ecosistema(tk.Tk):
         # Simula el terremoto
         self.realizar_movimiento_terremoto(10)
         self.restablecer_posicion_mapa()
+        logging.info(" SE A GENERADO UN TERREMOTOOOOO")
 
 
     def restablecer_posicion_mapa(self):
@@ -706,13 +670,46 @@ class Ecosistema(tk.Tk):
         
         self.after(300,self.Animales_Desplazandose)
 
+    def iniciar_logging(self):
+        # Generar un identificador inicial de archivo basado en la marca de tiempo
+        self.nuevo_identificador = time.strftime("%Y%m%d_%H%M%S")
+        self.nuevo_archivo_log = f"movimientos_{self.nuevo_identificador}.log"
+
+        # Configurar el sistema de registro con el nuevo archivo
+        logging.basicConfig(
+            filename=self.nuevo_archivo_log,
+            level=logging.DEBUG,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            encoding='utf-8'
+        )
+
+
+
     def registrar_movimiento(self, animal, posicion):
         mensaje = f"{animal} se movió a la posición {posicion}"
         logging.info(mensaje)
-
         return None
-    
-        
+       
+    def reiniciar_logging(self):
+        # Crear un nuevo identificador de archivo basado en la marca de tiempo
+        nuevo_identificador = time.strftime("%Y%m%d_%H%M%S")
+        nuevo_archivo_log = f"movimientos_{nuevo_identificador}.log"
+
+        # Agregar un nuevo manejador para el nuevo archivo de registro
+        nuevo_handler = logging.FileHandler(nuevo_archivo_log, encoding='utf-8')
+        nuevo_handler.setLevel(logging.DEBUG)
+        nuevo_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logging.getLogger().addHandler(nuevo_handler)
+
+        # Eliminar manejadores antiguos si es necesario
+        self.eliminar_handlers_antiguos()
+
+    def eliminar_handlers_antiguos(self):
+        root_logger = logging.getLogger()
+        for handler in root_logger.handlers[:]:
+            if isinstance(handler, logging.FileHandler):
+                root_logger.removeHandler(handler)
+
 
 filas = 27
 columnas = 35
@@ -744,6 +741,7 @@ for fila in biome_noise:
 
 if __name__ == "__main__":
     ecosistema = Ecosistema(filas=27, columnas= 35, ancho_celda=25)
+    ecosistema.reiniciar_logging()
     ecosistema.geometry("1190x675") # RAA
     ecosistema.config(bg="black")
     ecosistema.mainloop()
