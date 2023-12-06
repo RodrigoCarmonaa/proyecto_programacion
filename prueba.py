@@ -178,7 +178,7 @@ class Ambiente:
 #####################################################################
 #                           SAVANA
 #####################################################################
-class SavanaAfricana:
+class SabanaAfricana:
     def __init__(self, temperatura, estacion_seca, estacion_lluvia, vegetacion, fauna):
         self.temperatura = temperatura
         self.estacion_seca = estacion_seca
@@ -695,6 +695,7 @@ class Ecosistema(tk.Tk):
                     if Animal_encontrado.vida <= 0:
                         self.Prueba_muerte(Animal_encontrado,"Comido")
 
+
     def registrar_movimiento(self, animal, posicion):
         mensaje = f"{animal} se movió a la posición {posicion}"
         logging.info(mensaje)
@@ -730,6 +731,7 @@ for fila in biome_noise:
         else:
             mapa_fila.append(2)  # Café
     mapa_numerico.append(mapa_fila)
+
 
 if __name__ == "__main__":
     ecosistema = Ecosistema(filas=27, columnas= 35, ancho_celda=25)
