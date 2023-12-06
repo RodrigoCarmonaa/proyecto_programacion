@@ -347,7 +347,7 @@ class Ventana(tk.Tk):
         self.direccion_leon8 = choice(["arriba", "abajo", "izquierda", "derecha"])
         self.direccion_leon9 = choice(["arriba", "abajo", "izquierda", "derecha"])
         
-        self.agua_image = Image.open("imagenes/agua.png")
+    x|    self.agua_image = Image.open("imagenes/agua.png")
         self.tierra_image = Image.open("imagenes/tierra.png")
         self.pasto_image = Image.open("imagenes/pasto.png")
 
