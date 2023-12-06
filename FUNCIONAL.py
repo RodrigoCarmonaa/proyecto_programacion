@@ -341,7 +341,8 @@ class Ventana(tk.Tk):
     def Prueba_muerte(self,Animal_Muere,Razon):
         Animal = Animal_Muere
         if Razon == "Meteorito":
-            Animal.Morir("Aplastado por meteorito DX")
+            Animal.Morir("Aplastado por meteorito")
+            logging.info(f"El {Animal.nombre} ha muerto aplastado por un meteorito")
             self.Mostrar_Animales()
 
     def restablecer_posicion_mapa(self):
@@ -394,6 +395,7 @@ class Ventana(tk.Tk):
         self.canvas.move("all", delta_x_mapa, delta_y_mapa)
 
     def realizar_movimiento_terremoto(self, contador):
+        logging.info(f"Comenzo un terremoto")
         if contador > 0:
             self.mover_pantalla()
             self.canvas.lift("all")
@@ -639,7 +641,7 @@ class Ventana(tk.Tk):
         self.after(300,self.Animales_Desplazandose)
 
     def registrar_movimiento(self, animal, posicion):
-        mensaje = f"{animal} se movio a la posición {posicion}"
+        mensaje = f"{animal} se movio a la posicion {posicion}"
         logging.info(mensaje)
 
 filas = 27
