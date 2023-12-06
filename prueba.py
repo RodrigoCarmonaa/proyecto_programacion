@@ -339,7 +339,6 @@ class Ecosistema(tk.Tk):
         self.proceso_diluvio = False
         self.crear_cuadricula()
         self.crear_fondo()        
-        
         self.animales()
         
         
@@ -406,7 +405,7 @@ class Ecosistema(tk.Tk):
             "animal8": self.tortuga,
             "animal9": self.Leon373,
             "animal10": self.Leon777,
-        }
+         }
 
     def resetear (self):
         self.restablecer_posicion_mapa()
