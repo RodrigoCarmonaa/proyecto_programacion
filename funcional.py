@@ -1,7 +1,7 @@
 from opensimplex import OpenSimplex
 import tkinter as tk
 from PIL import Image, ImageTk
-from random import choice, randint
+from random import choice, randint, RA
 import random
 import logging
 # -*- coding: utf-8 -*-
@@ -78,6 +78,31 @@ class Animal(Organismo):
         self.Direccion = Direccion
         self.canvas = self.Prueba()
 
+    def reproducirse(self, otros):
+        if Animal.total_animales < 100:  # Limitar la reproducción si se alcanza el límite
+            for otro in otros:
+                if (
+                    isinstance(otro, type(self))
+                    and self.especie == otro.especie
+                    and self.__class__ == otro.__class__
+                ):
+                    if RA.random() < 0.1:
+                        nueva_posicion_x = min(max(self.posicion[0] + RA.randint(-1, 1), 0), 800)  # Ajusta el valor máximo según tu ventana
+                        nueva_posicion_y = min(max(self.posicion[1] + RA.randint(-1, 1), 0), 600)  # Ajusta el valor máximo según tu ventana
+
+                        nuevo_animal = self.__class__(
+                            especie=self.especie,
+                            posicion=(nueva_posicion_x, nueva_posicion_y),
+                            vida=(self.vida + otro.vida) // 2,
+                            energia=(self.energia + otro.energia) // 2,
+                            velocidad=self.velocidad,
+                            dieta=self.dieta
+                        )
+                        Animal.total_animales += 1  # Incrementar el número total de animales al reproducirse
+                        logging.info(f"{self.especie} se ha reproducido con {otro.especie}. Nueva posicion: {nuevo_animal.posicion}")
+                        return nuevo_animal
+        return None
+    
     def Prueba(self,canva=None):
         self.canvas = canva
 
@@ -142,27 +167,15 @@ class SavanaAfricana:
     def agregar_animal(self, animal):
         pass
 
-#####################################################################
-#                           ECOSISTEMAS
-#####################################################################
-class Ecosistema:
-    def __init__(self):
-        self.organismos = []
-        self.ambiente = []
 
-    def ciclo_global(self):
-        pass
-#####################################################################
-#                           MOTOR DE EVENTOS
-#####################################################################
-"""
+
 #####################################################################
     
 #####################################################################
 #                           VENTANA
 #####################################################################
-"""
-class Ventana(tk.Tk):
+
+class Ecosistema(tk.Tk):
     def __init__(self, filas, columnas, ancho_celda, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filas = filas
@@ -172,26 +185,36 @@ class Ventana(tk.Tk):
         self.area_afectada = self.generar_impacto_3x3()
         self.area_afectada += [[random.randint(0, 26), random.randint(0, 39)] for x in range(19)]
         
+        
+        
         # Configurar el sistema de registro para la ventana
         logging.basicConfig(filename='movimientos.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', encoding='utf-8')
 # ----------------------------------------------
 # Propiedades que se usaran para crear el fondo.
 # ----------------------------------------------
         self.agua_image = Image.open("imagenes/agua.png")
+        self.agua_image2 = Image.open("imagenes/agua2.png")
         self.tierra_image = Image.open("imagenes/tierra.png")
         self.pasto_image = Image.open("imagenes/pasto.png")
 
         self.agua_image = self.agua_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
+        self.agua_image2 = self.agua_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
         self.tierra_image = self.tierra_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
         self.pasto_image = self.pasto_image.resize((self.ancho_celda, self.ancho_celda), Image.LANCZOS)
 
         # Convertir las imágenes de fondo a formato Tkinter
         self.agua_image = ImageTk.PhotoImage(self.agua_image)
+        self.agua_image2 = ImageTk.PhotoImage(self.agua_image2)
         self.tierra_image = ImageTk.PhotoImage(self.tierra_image)
         self.pasto_image = ImageTk.PhotoImage(self.pasto_image)
 
+        self.proceso_diluvio = False
         self.crear_cuadricula()
-        self.crear_fondo()
+        self.crear_fondo()        
+        
+        self.animales()
+        
+        
 #----------------------------------------------------------
 # Intefaz interactiva para el usuario, colocar en una funcion y luego llamarla
 #---------------------------------------------------------
@@ -210,8 +233,8 @@ class Ventana(tk.Tk):
         frame1.place(x=940, y = 300)
         boton_meteorito = tk.Button(frame1, text="Generar Meteorito", command=self.generar_meteorito)
         boton_terremoto = tk.Button(frame1, text="Generar Terremoto", command=self.simular_terremoto) 
-        boton_Estado = tk.Button(frame1, text="Mostrar estado actual")  
-        boton_Otro_evento = tk.Button(frame1, text="Otro evento")  
+        boton_Estado = tk.Button(frame1, text="volver a la normalidad", command=self.resetear)  
+        boton_Otro_evento = tk.Button(frame1, text="diluvio", command=self.generar_diluvio)  
         boton_Estado.place(x=35,y=0,width="150")   
         boton_terremoto.place(x=35,y=50,width="150")  
         boton_meteorito.place(x=35,y=100,width="150")   
@@ -219,6 +242,7 @@ class Ventana(tk.Tk):
 #--------------------------------------------------
 # Animal: 
 #-------------------------------------------------
+    def instancia(self):
         # Direcciones iniciales de los animales
         self.direccion_leon = choice(["arriba", "abajo", "izquierda", "derecha"])  #RAA
         self.direccion_leon2 = choice(["arriba", "abajo", "izquierda", "derecha"]) #RAA
@@ -234,14 +258,12 @@ class Ventana(tk.Tk):
 # --------------------------------------------
         self.Leon1 = Animal('Leon',[20, 20],100,100,2,None,"Carnivoro","m","joven",["Hervivoro,Plantas,Agua"],self.direccion_leon)
         self.Leon2 = Animal('Leon',[21, 20],100,100,2,None,"Carnivoro","f","joven",["Hervivoro,Plantas,Agua"],self.direccion_leon)
-
         self.hiena =  Animal('hiena',[4, 2],100,100,2,None,"Hervivoro","m","joven",["Hervivoro,Plantas,Agua"],self.direccion_hiena)
         self.jirafa = Animal('jirafa',[3,5],100,100,2,None,"Hervivoro","m","joven",["Plantas,Agua"],self.direccion_jirafa)
         self.gacela = Animal('gacela',[1, 1],100,100,2,None,"Carnivoro","m","joven",["Hervivoro,Plantas,Agua"],self.direccion_gacela)
         self.rinoceronte = Animal('rinoceronte',[8, 15],100,100,2,None,"Carnivoro","m","joven",["Hervivoro,Plantas,Agua"],self.direccion_rinoceronte)
         self.elefante = Animal('elefante',[12, 20],100,100,2,None,"Hervivoro","f","joven",["Plantas,Agua"],self.direccion_elefante)
         self.tortuga = Animal('tortuga',[15, 25],100,100,2,None,"Hervivoro","m","joven",["Plantas,Agua"],self.direccion_tortuga)
-
         self.Leon373 = Animal('Leon373',[10, 8],100,100,2,None,"Carnivoro","m","adulto",["Hervivoro,Plantas,Agua"],self.direccion_leon)
         self.Leon777 = Animal('Leon777',[10, 8],100,100,2,None,"Carnivoro","m","adulto",["Hervivoro,Plantas,Agua"],self.direccion_leon)
 
@@ -257,11 +279,49 @@ class Ventana(tk.Tk):
             "animal9": self.Leon373,
             "animal10": self.Leon777,
         }
-        self.Mostrar_Animales()
-        self.Animales_Desplazandose()
 
+    def resetear (self):
+        self.restablecer_posicion_mapa()
+    def animales (self):
+        if not self.proceso_diluvio:
+            self.instancia()
+            self.Mostrar_Animales()
+            self.Animales_Desplazandose()
+        elif self.proceso_diluvio:
+            self.canvas.delete("leon373", "leon", "hiena", "jirafa", "gacela", "rinoceronte", "elefante", "tortuga", "Leon777")
 
+    def generar_diluvio(self):
+        if not self.proceso_diluvio:
+            self.proceso_diluvio = True
+            # Desaparecer animales antes del diluvio
+            self.desaparecer_animales()
+            # Mostrar animales después del diluvio
+            self.after(500, self.mostrar_animales_despues_diluvio)
+            # Crear animación de diluvio
+            self.animar_diluvio(0)
+
+    def animar_diluvio(self, contador):
+        if contador < 20:
+            self.proceso_diluvio = True  # Ajusta el número de iteraciones según sea necesario
+            self.canvas.delete("leon373", "leon", "hiena", "jirafa", "gacela", "rinoceronte", "elefante", "tortuga", "Leon777")  # Elimina el fondo actual
+
+            for fila in range(self.filas):
+                for columna in range(self.columnas):
+                    if random.random() < 0.5:
+                        x_posicion = columna * self.ancho_celda
+                        y_posicion = fila * self.ancho_celda
+                        self.canvas.create_image(x_posicion, y_posicion, anchor=tk.NW, image=self.agua_image, tags="fondo")
+
+            self.after(100, self.animar_diluvio, contador + 1)
+        else:
+            self.proceso_diluvio = False
+            self.mostrar_animales_despues_diluvio()
+            
+    def mostrar_animales_despues_diluvio(self):
+        if not self.proceso_diluvio:
+            self.Mostrar_Animales()
     
+
     def generar_impacto_3x3(self):
         centro_x = random.randint(1, 25)
         centro_y = random.randint(1, 38)
@@ -390,7 +450,7 @@ class Ventana(tk.Tk):
     def crear_cuadricula(self):
         # Crear la cuadrícula una vez al inicio
         self.canvas = tk.Canvas(self, width=self.columnas * self.ancho_celda, height=self.filas * self.ancho_celda)
-        self.canvas.pack()
+        self.canvas.place(x=45,y=5)
 
         # Listas para almacenar los IDs de las líneas horizontales y verticales
         self.ids_lineas_horizontales = []
@@ -420,7 +480,6 @@ class Ventana(tk.Tk):
         return x_actual, y_actual
     
     def Cargar_Imagenes_ANIMALES(self):
-        # Cargar imágenes de animales
         self.lion_image = Image.open("imagenes/leon.png")            # [0]
         self.jirafa_image = Image.open("imagenes/jirafa.png")        # [1]
         self.hiena_image = Image.open("imagenes/hiena.png")          # [2]
@@ -458,31 +517,38 @@ class Ventana(tk.Tk):
         return Animal
   
     def Mostrar_Animales(self):
-        Animal = self.Cargar_Imagenes_ANIMALES()
-        for animal,tipo_animal in self.Lista_Animales.items():
-            Tipo_animal = self.Lista_Animales[animal]     
-            if 'Leon' in Tipo_animal.nombre:
-                if 'joven' in Tipo_animal.edad:
-                    Tipo_animal.Imagen_Animal = Animal[7]
-                elif 'adulto' in Tipo_animal.edad:
-                    Tipo_animal.Imagen_Animal = Animal[0]
-            elif 'hiena' in  Tipo_animal.nombre:
-                Tipo_animal.Imagen_Animal = Animal[1]
-            elif 'jirafa' in  Tipo_animal.nombre:
-                Tipo_animal.Imagen_Animal = Animal[2]
-            elif 'gacela' in  Tipo_animal.nombre:
-                Tipo_animal.Imagen_Animal = Animal[3]
-            elif 'rinoceronte' in  Tipo_animal.nombre:
-                Tipo_animal.Imagen_Animal = Animal[4]
-            elif 'elefante' in  Tipo_animal.nombre:
-                Tipo_animal.Imagen_Animal = Animal[5]
-            elif 'tortuga' in  Tipo_animal.nombre:
-                Tipo_animal.Imagen_Animal = Animal[6]
-            Tipo_animal.Prueba(self.canvas)
-            Tipo_animal.mostrar_imagen()
+        if not self.proceso_diluvio:
+            Animal = self.Cargar_Imagenes_ANIMALES()
+            for animal,tipo_animal in self.Lista_Animales.items():
+                Tipo_animal = self.Lista_Animales[animal]     
+                if 'Leon' in Tipo_animal.nombre:
+                    if 'joven' in Tipo_animal.edad:
+                        Tipo_animal.Imagen_Animal = Animal[7]
+                    elif 'adulto' in Tipo_animal.edad:
+                        Tipo_animal.Imagen_Animal = Animal[0]
+                elif 'hiena' in  Tipo_animal.nombre:
+                    Tipo_animal.Imagen_Animal = Animal[1]
+                elif 'jirafa' in  Tipo_animal.nombre:
+                    Tipo_animal.Imagen_Animal = Animal[2]
+                elif 'gacela' in  Tipo_animal.nombre:
+                    Tipo_animal.Imagen_Animal = Animal[3]
+                elif 'rinoceronte' in  Tipo_animal.nombre:
+                    Tipo_animal.Imagen_Animal = Animal[4]
+                elif 'elefante' in  Tipo_animal.nombre:
+                    Tipo_animal.Imagen_Animal = Animal[5]
+                elif 'tortuga' in  Tipo_animal.nombre:
+                    Tipo_animal.Imagen_Animal = Animal[6]
+                Tipo_animal.Prueba(self.canvas)
+                Tipo_animal.mostrar_imagen()
 
     def cria_2(self):
         self.canvas.delete('Leon777')
+
+
+    def desaparecer_animales(self):
+        if not self.proceso_diluvio:
+            self.canvas.delete("leon373", "leon", "hiena", "jirafa", "gacela", "rinoceronte", "elefante", "tortuga", "Leon777")
+
 
     def Animales_Desplazandose(self):
         self.canvas.delete("leon373","leon","hiena", "jirafa", "gacela", "rinoceronte", "elefante", "tortuga")
@@ -517,8 +583,13 @@ class Ventana(tk.Tk):
         mensaje = f"{animal} se movió a la posición {posicion}"
         logging.info(mensaje)
 
+        return None
+    
+        
+
 filas = 27
 columnas = 35
+
 
 # Generar el ruido de Simplex para el mapa de biomas
 biome_map = OpenSimplex(seed=random.randint(1, 10000))
@@ -545,7 +616,7 @@ for fila in biome_noise:
     mapa_numerico.append(mapa_fila)
 
 if __name__ == "__main__":
-    ventana = Ventana(filas=27, columnas= 35, ancho_celda=25)
-    ventana.geometry("1190x675") # RAA
-    ventana.config(bg="black")
-    ventana.mainloop()
+    ecosistema = Ecosistema(filas=27, columnas= 35, ancho_celda=25)
+    ecosistema.geometry("1190x675") # RAA
+    ecosistema.config(bg="black")
+    ecosistema.mainloop()
